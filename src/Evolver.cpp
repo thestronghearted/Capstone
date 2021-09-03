@@ -81,7 +81,7 @@ void printHelp() {
 	conf->init("help");
 	std::cout << std::endl;
 	boost::shared_ptr<RobogenConfig> robotConf =
-			ConfigurationReader::parseConfigurationFile("help");
+			ConfigurationReader::parseConfigurationFile("help",1);
 }
 
 boost::shared_ptr<Population> population;
@@ -165,7 +165,7 @@ void init(unsigned int seed, std::string outputDirectory,
 	}
 
 	robotConf = ConfigurationReader::parseConfigurationFile(
-			conf->simulatorConfFile);
+			conf->simulatorConfFile,1);
 	if (robotConf == NULL) {
 		std::cerr << "Problems parsing the robot configuration file. Quit."
 				<< std::endl;

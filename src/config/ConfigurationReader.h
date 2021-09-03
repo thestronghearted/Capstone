@@ -64,7 +64,8 @@ public:
 	 *
 	 */
 	static boost::shared_ptr<RobogenConfig> parseConfigurationFile(
-			const std::string& fileName);
+			const std::string& fileName,int numberOfRobots); //candidate expects 2 arguments, 1 provided - need to check if future errors occur
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	static boost::shared_ptr<RobogenConfig> parseRobogenMessage(
 				const robogenMessage::SimulatorConf& simulatorConf);

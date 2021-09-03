@@ -65,8 +65,8 @@ void makeAbsolute(std::string &fileName,
 }
 
 
-boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
-		const std::string& fileName) {
+boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(  
+		const std::string& fileName,int numberOfRobots) { //edited with including number of robots
 
 	boost::program_options::options_description desc(
 			"Allowed options for Simulation Config File");
@@ -270,7 +270,7 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 		}
 	}
 
-	boost::shared_ptr<StartPositionConfig> startPositions;
+	boost::shared_ptr<StartPositionConfig> startPositions;  
 	std::string startPositionFile = "";
 	// Read start pos configuration
 	if (!vm.count("startPositionConfigFile")) {
@@ -279,16 +279,34 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 				<< "having 0 azimuth" << std::endl;
 		std::vector<boost::shared_ptr<StartPosition> > startPositionVector;
 
-		boost::shared_ptr<StartPosition> startPosition(new StartPosition());
-		if (!startPosition->init(osg::Vec2(0,0), 0)) {
-			std::cerr << "Problem initializing start position!" << std::endl;
-			return boost::shared_ptr<RobogenConfig>();
+		////////////////////////////////////////////////edit done below
+		if (numberOfRobots != 1)
+		{
+			for (int robotNumber = 0;robotNumber < numberOfRobots; robotNumber++)
+			{
+				boost::shared_ptr<StartPosition> startPosition(new StartPosition());
+				if (!startPosition->init(osg::Vec2(0+robotNumber,0+robotNumber), 0)) {
+				std::cerr << "Problem initializing start position!" << std::endl;
+				return boost::shared_ptr<RobogenConfig>();
+				}
+
+				startPositionVector.push_back(startPosition);
+			}
+			startPositions.reset(new StartPositionConfig(startPositionVector));
 		}
+		else //original singular robot start position
+		{
+			boost::shared_ptr<StartPosition> startPosition(new StartPosition());
+			if (!startPosition->init(osg::Vec2(0,0), 0)) {
+				std::cerr << "Problem initializing start position!" << std::endl;
+				return boost::shared_ptr<RobogenConfig>();
+			}
 
-		startPositionVector.push_back(startPosition);
-		startPositions.reset(new StartPositionConfig(startPositionVector));
-
-	} else {
+			startPositionVector.push_back(startPosition);
+			startPositions.reset(new StartPositionConfig(startPositionVector));
+		
+		}
+	} else { //still need to add code to handle inputted start files
 
 		startPositionFile = vm["startPositionConfigFile"].as<std::string>();
 
@@ -502,7 +520,7 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 
 }
 
-const std::string getMatchNFloatPattern(unsigned int n) {
+const std::string getMatchNFloatPattern(unsigned int n) {     				   
 	std::stringstream paternSS;
 	paternSS << "^";
 	for ( unsigned i=0; i<n; i++) {
@@ -649,13 +667,13 @@ boost::shared_ptr<LightSourcesConfig> ConfigurationReader::parseLightSourcesFile
 	return boost::shared_ptr<LightSourcesConfig>(
 			new LightSourcesConfig(coordinates, intensities));
 }
-
+//////////////////////////////#################################need to work on below
 
 boost::shared_ptr<StartPositionConfig> ConfigurationReader::parseStartPositionFile(
 		const std::string& fileName) {
 
 	std::ifstream startPosFile(fileName.c_str());
-	if (!startPosFile.is_open()) {
+	if (!startPosFile.is_open()) { 												
 		std::cout << "Cannot find start position file: '" << fileName << "'"
 				<< std::endl;
 		return boost::shared_ptr<StartPositionConfig>();
@@ -723,7 +741,7 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseRobogenMessage(
 				new LightSourcesConfig(lightSourcesCoords,
 						lightSourcesIntensities));
 
-
+	//////////////////////////////#################################need to work on below
 	// Decode start positions
 	std::vector<boost::shared_ptr<StartPosition> > startPositions;
 	for (int i = 0; i < simulatorConf.startpositions_size(); ++i) {
@@ -731,7 +749,7 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseRobogenMessage(
 				i);
 		boost::shared_ptr<StartPosition> newStartPos(new StartPosition());
 		newStartPos->init(osg::Vec2(s.x(), s.y()), s.azimuth());
-		startPositions.push_back(newStartPos);
+		startPositions.push_back(newStartPos); 
 	}
 
 	// Decode terrain configuration
