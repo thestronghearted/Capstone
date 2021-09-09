@@ -76,6 +76,19 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 		boost::random::mt19937 &rng,
 		bool onlyOnce, boost::shared_ptr<FileViewerLog> log);
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
+		boost::shared_ptr<RobogenConfig> configuration,
+		const std::vector<std::reference_wrapper<robogenMessage::Robot> > robotMessage, IViewer *viewer,
+		boost::random::mt19937 &rng);
+
+
+unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
+		boost::shared_ptr<RobogenConfig> configuration,
+		const std::vector<std::reference_wrapper<robogenMessage::Robot>>  robotMessage, IViewer *viewer,
+		boost::random::mt19937 &rng,
+		bool onlyOnce, boost::shared_ptr<FileViewerLog> log);
 
 
 }

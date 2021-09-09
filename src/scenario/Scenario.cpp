@@ -197,6 +197,10 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 	return true;
 }
 
+/**
+ * @author: Kevaalin
+ * From here is the code to retrieve the starting positions
+ */
 boost::shared_ptr<StartPosition> Scenario::getCurrentStartPosition() {
 	return robogenConfig_->getStartingPos()->getStartPosition(
 			startPositionId_);
@@ -221,6 +225,224 @@ void Scenario::setStartingPosition(int id) {
 
 boost::shared_ptr<Environment> Scenario::getEnvironment() {
 	return environment_;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
+		std::vector<boost::shared_ptr<Robot>> robot) { //initialise for multiple robots
+
+	environment_ = boost::shared_ptr<Environment>(new
+			Environment(odeWorld, odeSpace, robogenConfig_));
+
+	if(!environment_->init()) {
+		return false;
+	}
+
+
+	robots = robot;
+	//assign multiple double locations
+	std::vector<double> minX;
+	std::vector<double> maxX;
+	std::vector<double> minY;
+	std::vector<double> maxY;
+	std::vector<double> minZ;
+	std::vector<double> maxZ;
+
+	for (int i = 0; i< robots.size();i++)
+	{
+	// Setup robot position
+		minX.push_back(0);
+		maxX.push_back(0);
+		minY.push_back(0);
+		maxY.push_back(0);
+		minZ.push_back(0);
+		maxZ.push_back(0);
+	}
+	// Starting position and orientation
+	/**
+	 * Creates new vector of type osg::Vec2, which is a vector of the starting position 
+	 * for each Robot (Formatted as: x-pos, y-pos, azimuth)
+	 */
+	std::vector<osg::Vec2> arrStartingPosition;
+	std::vector<float> arrAzimth;
+	//std::vector<boost::shared_ptr<StartPosition> > insertStartPositions = robogenConfig_->getStartingPos()->getStartPosition(
+	//				startPositionId_)->getPosition();
+	
+	for (int i = 0; i < robots.size();i++)
+	{
+		osg::Vec2 input = osg::Vec2f(i, i);
+		arrStartingPosition.push_back(input);
+		arrAzimth.push_back(0); ////////still need to remove hard code
+	}
+
+	/**
+	 * Reading in the S.Pos from the config, storing it as a vec. pushing it to vec of vectors
+	 */
+
+	/*for (int i = 0; i < robots.size(); i++)
+	{
+		osg::Vec2 startingPosConfig = robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getPosition();
+		float floatingAzimuth = robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getAzimuth();
+		arrStartingPosition.push_back(startingPosConfig);
+		arrAzimth.push_back(floatingAzimuth);
+	}*/
+
+	//for efficeint memory management do below ------ i am not sure
+	//delete input;
+	//delete insertStartPositions;
+    //  											      |
+	//---> still need to sort out Azimuth below ----------v	
+	//float startingAzimuth = robogenConfig_->getStartingPos()->getStartPosition(
+	//		startPositionId_)->getAzimuth();
+
+
+	for(int i = 0; i < robot.size(); i++){
+	osg::Quat roboRot;
+	roboRot.makeRotate(osg::inDegrees(arrAzimth[i]), osg::Vec3(0,0,1));
+	
+		robot[i]->rotateRobot(roboRot);
+		robot[i]->getBB(minX[i], maxX[i], minY[i], maxY[i], minZ[i], maxZ[i]);
+		robot[i]->translateRobot(
+			osg::Vec3(arrStartingPosition[i].x(),
+					arrStartingPosition[i].y(),
+					robogenConfig_->getTerrainConfig()->getHeight()
+						+ inMm(2) - minZ[i]));
+		robot[i]->getBB(minX[i], maxX[i], minY[i], maxY[i], minZ[i], maxZ[i]);
+	}
+	
+	for (int i = 0; i < robots.size();i++)
+	{
+	std::cout
+			<< "The " << i <<" robot is enclosed in the AABB(minX, maxX, minY, maxY, minZ, maxZ) ("
+			<< minX[i] << ", " << maxX[i] << ", " << minY[i] << ", " << maxY[i] << ", "
+			<< minZ[i] << ", " << maxZ[i] << ")" << std::endl;
+	std::cout << "Obstacles in this range will not be generated" << std::endl << std::endl;
+	}
+	 /////////////////////////need to edit code later
+	
+	// Setup obstacles
+	boost::shared_ptr<ObstaclesConfig> obstacles =
+			robogenConfig_->getObstaclesConfig();
+	/*
+	// Instance the boxes above the maximum terrain height
+	const std::vector<osg::Vec3>& c = obstacles->getCoordinates();
+	const std::vector<osg::Vec3>& s = obstacles->getSizes();
+	const std::vector<float>& d = obstacles->getDensities();
+	const std::vector<osg::Vec3>& rotationAxis = obstacles->getRotationAxes();
+	const std::vector<float>& rotationAngles = obstacles->getRotationAngles();
+
+	obstaclesRemoved_ = false;
+
+	double overlapMaxZ=minZ;
+
+	for (unsigned int i = 0; i < c.size(); ++i) {
+		boost::shared_ptr<BoxObstacle> obstacle(
+									new BoxObstacle(odeWorld, odeSpace, c[i],
+											s[i], d[i], rotationAxis[i],
+											rotationAngles[i]));
+		double oMinX, oMaxX, oMinY, oMaxY, oMinZ, oMaxZ;
+		obstacle->getAABB(oMinX, oMaxX, oMinY, oMaxY, oMinZ, oMaxZ);
+
+		/*
+		float oMinX = c[i].x() - s[i].x() / 2;
+		float oMaxX = c[i].x() + s[i].x() / 2;
+		float oMinY = c[i].y() - s[i].y() / 2;
+		float oMaxY = c[i].y() + s[i].y() / 2;
+		float oMinZ = c[i].z() - s[i].z() / 2;
+		float oMaxZ = c[i].z() + s[i].z() / 2;
+		 */
+
+		// Do not insert the obstacle if it is in the robot range
+	/*	bool inRangeX = false;
+		if ((oMinX <= minX && oMaxX >= maxX) || (oMinX >= minX && oMinX <= maxX)
+				|| (oMaxX >= minX && oMaxX <= maxX)) {
+			inRangeX = true;
+		}
+
+		bool inRangeY = false;
+		if ((oMinY <= minY && oMaxY >= maxY) || (oMinY >= minY && oMinY <= maxY)
+				|| (oMaxY >= minY && oMaxY <= maxY)) {
+			inRangeY = true;
+		}
+
+		bool inRangeZ = false;
+		if ((oMinZ <= minZ && oMaxZ >= maxZ) || (oMinZ >= minZ && oMinZ <= maxZ)
+				|| (oMaxZ >= minZ && oMaxZ <= maxZ)) {
+			inRangeZ = true;
+		}
+
+		// Do not insert obstacles in the robot range
+		if (!(inRangeX && inRangeY && inRangeZ)) {
+			environment_->addObstacle(obstacle);
+		} else {
+			if (robogenConfig_->getObstacleOverlapPolicy() ==
+					RobogenConfig::ELEVATE_ROBOT) {
+
+				if (oMaxZ > overlapMaxZ)
+					overlapMaxZ = oMaxZ;
+				environment_->addObstacle(obstacle);
+
+			} else {
+				obstacle->remove();
+				obstaclesRemoved_ = true;
+			}
+		}
+
+	}
+
+	if (robogenConfig_->getObstacleOverlapPolicy() ==
+			RobogenConfig::ELEVATE_ROBOT) {
+
+		robot->translateRobot(
+				osg::Vec3(startingPosition.x(), startingPosition.y(),
+						overlapMaxZ + inMm(2) - minZ));
+	}
+	*/
+	// Setup light sources
+	boost::shared_ptr<LightSourcesConfig> lightSourcesConfig =
+			robogenConfig_->getLightSourcesConfig();
+
+	// todo do we need to do overlap check with light sources??
+
+	std::vector<boost::shared_ptr<LightSource> > lightSources;
+	this->getEnvironment()->setLightSources(lightSources);
+
+	std::vector<osg::Vec3> lightSourcesCoordinates =
+			lightSourcesConfig->getCoordinates();
+	std::vector<float> lightSourcesIntensities =
+				lightSourcesConfig->getIntensities();
+	for (unsigned int i = 0; i < lightSourcesCoordinates.size(); ++i) {
+		lightSources.push_back(boost::shared_ptr<LightSource>(
+					new LightSource(odeSpace, lightSourcesCoordinates[i],
+							lightSourcesIntensities[i])));
+
+	}
+	environment_->setLightSources(lightSources);
+
+
+	// optimize the physics!  replace all fixed joints with composite bodies
+	for (int i = 0;i<robots.size();i++)
+	{
+	robots[i]->optimizePhysics();
+	}
+	return true;
+}
+
+
+void Scenario::prunemul(){
+	environment_.reset();
+	for (int i = robots.size()-1;i > -1;i--)
+	{
+		robots[i].reset();
+		robots.pop_back();
+	}
 }
 
 

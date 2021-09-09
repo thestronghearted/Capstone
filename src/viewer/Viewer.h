@@ -64,6 +64,14 @@ public:
 	~Viewer();
 	bool configureScene(std::vector<boost::shared_ptr<Model> > bodyParts,
 			boost::shared_ptr<Scenario> scenario);
+
+
+	//////////////////////// Added
+	bool configureScenes(std::vector<std::vector<boost::shared_ptr<Model>> > bodyParts,
+		boost::shared_ptr<Scenario> scenario);
+	///////////////////////////
+
+
 	bool done();
 
 	/***

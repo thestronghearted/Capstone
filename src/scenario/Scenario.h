@@ -147,7 +147,12 @@ public:
 	void setRobogenConfig(boost::shared_ptr<RobogenConfig> robogenConfig) {
 		robogenConfig_ = robogenConfig;
 	}
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual bool inita(dWorldID odeWorld, dSpaceID odeSpace,
+		std::vector<boost::shared_ptr<Robot>> robot);
 
+	void prunemul();
+	/////////////////////////////////////////////////////////////////
 private:
 
 	/**
@@ -171,6 +176,10 @@ private:
 	boost::shared_ptr<Environment> environment_;
 
 	bool obstaclesRemoved_;
+
+	///////////////////////////////////////////////////////////////////////
+	std::vector<boost::shared_ptr<Robot>> robots;	
+
 
 };
 

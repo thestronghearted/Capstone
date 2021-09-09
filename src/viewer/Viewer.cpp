@@ -172,7 +172,7 @@ bool Viewer::configureScene(std::vector<boost::shared_ptr<Model> > bodyParts,
 			<< std::endl;
 			return false;
 		}
-		renderModels.push_back(renderModel);
+		renderModels.push_back(renderModel);  //Ref:1
 		this->root->addChild(renderModels[i]->getRootNode());
 	}
 
@@ -330,5 +330,123 @@ void Viewer::record() {
 bool Viewer::isPaused() {
 	return this->keyboardEvent->isPaused();
 }
+//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+bool Viewer::configureScenes(std::vector<std::vector<boost::shared_ptr<Model> >> bodyParts,
+		boost::shared_ptr<Scenario> scenario) {
+
+	for(int j = 0; j < bodyParts.size(); j++)	
+	{	
+		for (unsigned int i= 0; i < bodyParts[j].size(); ++i) {
+			boost::shared_ptr<RenderModel> renderModel =
+					RobogenUtils::createRenderModel(bodyParts[j][i]);
+			if (!renderModel) {
+				std::cout
+				<< "Cannot create a render model for model "
+				<< i << std::endl;
+				return false;
+			}
+
+			renderModel->setDebugActive(this->debugActive);
+
+			if (!renderModel->initRenderModel()) {
+				std::cout
+				<< "Cannot initialize a render model for one of the components. "
+				<< std::endl
+				<< "Please check that the models/ folder is in the same folder of this executable."
+				<< std::endl;
+				return false;
+			}
+			renderModels.push_back(renderModel);
+			this->root->addChild(renderModels[i]->getRootNode());
+		}
+
+	}
+	// Terrain render model
+	boost::shared_ptr<TerrainRender> terrainRender(
+			new TerrainRender(scenario->getEnvironment()->getTerrain()));
+	this->root->addChild(terrainRender->getRootNode());
+
+	// Obstacles render model
+	const std::vector<boost::shared_ptr<Obstacle> >& obstacles =
+			scenario->getEnvironment()->getObstacles();
+	for (unsigned int i = 0; i < obstacles.size(); ++i) {
+		boost::shared_ptr<BoxObstacle> boxObstacle =
+										boost::dynamic_pointer_cast<
+										BoxObstacle>(obstacles[i]);
+
+
+		if(!boxObstacle) {
+			std::cerr << "Invalid obstacle!!" << std::endl;
+			return false;
+		}
+
+		boost::shared_ptr<BoxObstacleRender> obstacleRender(
+				new BoxObstacleRender(boxObstacle));
+		this->root->addChild(obstacleRender->getRootNode());
+	}
+
+
+	for(unsigned int i = 0;
+			i < scenario->getEnvironment()->getLightSources().size(); i++) {
+
+		boost::shared_ptr<LightSourceRender> lightSourceRender(
+				new LightSourceRender(
+						scenario->getEnvironment()->getLightSources()[i],
+						root));
+
+		root->addChild(lightSourceRender->getRootNode());
+	}
+
+	if(debugActive) {
+		// show global axis at origin
+		osg::ref_ptr<osg::PositionAttitudeTransform> pat(
+					new osg::PositionAttitudeTransform());
+
+
+		root->addChild(pat);
+		RenderModel::attachAxis(pat);
+	}
+
+	// ---------------------------------------
+	// Setup OSG viewer
+	// ---------------------------------------
+
+	this->viewer->setSceneData(root.get());
+
+	this->viewer->realize();
+
+	if (!this->viewer->getCameraManipulator()
+			&& this->viewer->getCamera()->getAllowEventFocus()) {
+		this->viewer->setCameraManipulator(
+				new osgGA::TrackballManipulator());
+	}
+
+	this->viewer->setReleaseContextAtEndOfFrameHint(false);
+
+	if(this->debugActive) {
+		std::cout << "Press M to show/hide meshes." << std::endl;
+		std::cout << "Press G to show/hide geoms." << std::endl;
+	}
+	std::cout << "Press P to pause/unpause the simulation." << std::endl;
+	std::cout << "Press Q to quit the visualizer." << std::endl;
+
+
+	return true;
+
+}
+
+
+
+
 
 } /* namespace robogen */

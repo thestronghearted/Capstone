@@ -267,7 +267,7 @@ int main(int argc, char *argv[]) {
 	}
 	///new started
 	int numberOfRobots = 2;
-	if (argc >= 4)
+	if (argc >= 4) //checks for the number of robots inputed (this is for homogonouse)
 	{
 		int check = 3;
 		while(check < argc)
@@ -293,11 +293,11 @@ int main(int argc, char *argv[]) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	if (numberOfRobots != 1)
+	if (numberOfRobots != 1) // if there are multiple robots
 	{
 		// Decode configuration file
 	boost::shared_ptr<RobogenConfig> configuration =
-			ConfigurationReader::parseConfigurationFile(std::string(argv[2]),numberOfRobots);
+			ConfigurationReader::parseConfigurationFile(std::string(argv[2]),numberOfRobots);  //configure with the number of robots
 	if (configuration == NULL) {
 		std::cerr << "Problems parsing the configuration file. Quit."
 				<< std::endl;
@@ -461,10 +461,10 @@ int main(int argc, char *argv[]) {
 	// Robot decoding HERE!
 	// --------------------------------------- 
 	//HERE! 
-	robogenMessage::Robot robotMessage; 
+	robogenMessage::Robot robotMessage;
 	std::string robotFileString(argv[1]);
-	std::vector<robogenMessage::Robot> robots;
-	for (int i = 0;i<numberOfRobots;++i)
+	std::vector<std::reference_wrapper<robogenMessage::Robot>> robots; //multiple robots
+	for (int i = 0;i<numberOfRobots;++i) //assign the multiple robots to a vector
 	{
 		if(!RobotRepresentation::createRobotMessageFromFile(robotMessage,
 				robotFileString)) {
@@ -472,7 +472,6 @@ int main(int argc, char *argv[]) {
 	}
 		robots.push_back(robotMessage);
 	}
-
 	// ---------------------------------------
 	// Setup environment
 	// ---------------------------------------
@@ -511,8 +510,8 @@ int main(int argc, char *argv[]) {
 				recordDirectoryName);
 	}
 	
-	unsigned int simulationResult = runSimulations(scenario, configuration,
-			robotMessage, viewer, rng, true, log);	
+	unsigned int simulationResult = runSimulations1(scenario, configuration,
+			robots, viewer, rng, true, log);	//runs the simulation
 	
 	if (viewer != NULL) {
 		delete viewer;
