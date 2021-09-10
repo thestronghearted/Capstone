@@ -404,7 +404,7 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 			if(log) {
 				log->logPosition(
 					scenario->getRobot(
-							)->getCoreComponent()->getRootPosition());
+							)[0]->getCoreComponent()->getRootPosition());
 			}
 
 			if(webGLlogger) {
@@ -681,8 +681,8 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		int count = 0;
 		double t = 0;
 
-		//boost::shared_ptr<CollisionData> collisionData(
-		//		new CollisionData(scenario) ); //SEGMENTATION FAULT IN HERE
+		boost::shared_ptr<CollisionData> collisionData(
+				new CollisionData(scenario) ); //SEGMENTATION FAULT IN HERE
 		double step = configuration->getTimeStepLength();
 		while ((t < configuration->getSimulationTime())
 			   && (!(visualize && viewer->done()))) {
@@ -694,20 +694,20 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 			}
 
 	
-			// if ((count++) % 500 == 0) {
-			// 	std::cout << "." << std::flush;
-			// }
+			if ((count++) % 500 == 0) {
+			 	std::cout << "." << std::flush;
+			}
 			// Collision detection
-		//	dSpaceCollide(odeSpace, collisionData.get(), odeCollisionCallback);
+			dSpaceCollide(odeSpace, collisionData.get(), odeCollisionCallback);
 
 			// Step the world by one timestep
 			dWorldStep(odeWorld, step);
 			// Empty contact groups used for collisions handling
 			dJointGroupEmpty(odeContactGroup);
-		//	if (configuration->isDisallowObstacleCollisions() &&
-		//			collisionData->hasObstacleCollisions()) {
-		//		constraintViolated = true;
-		//		break;
+			if (configuration->isDisallowObstacleCollisions() &&
+					collisionData->hasObstacleCollisions()) {
+				constraintViolated = true;
+				break;
 			}
 			/**
 			 * loop through every robot
@@ -836,7 +836,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 						std::cout << "Motor burnt out, will terminate now "
 								<< std::endl;
 						motorBurntOut = true;
-						//constraintViolated = true;
+						constraintViolated = true;
 					}
 
 				}
@@ -855,7 +855,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 				if(log) {
 					log->logPosition(
 						scenario->getRobot(
-								)->getCoreComponent()->getRootPosition());
+								)[0]->getCoreComponent()->getRootPosition());
 				}
 
 				if(webGLlogger) {
@@ -890,7 +890,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		if(webGLlogger) {
 			webGLlogger.reset();
 		}
-		//} // end code block protecting objects for ode code clean up
+		} // end code block protecting objects for ode code clean up
 
 
 		// scenario has a shared ptr to the robot, so need to prune it

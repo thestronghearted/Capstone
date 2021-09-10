@@ -211,8 +211,8 @@ void Scenario::prune(){
 	robot_.reset();
 }
 
-boost::shared_ptr<Robot> Scenario::getRobot() {
-	return robot_;
+std::vector<boost::shared_ptr<Robot>> Scenario::getRobot() {
+	return robots;
 }
 
 boost::shared_ptr<RobogenConfig> Scenario::getRobogenConfig() {
@@ -286,13 +286,13 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	 * Reading in the S.Pos from the config, storing it as a vec. pushing it to vec of vectors
 	 */
 
-	/*for (int i = 0; i < robots.size(); i++)
+	for (int i = 0; i < robots.size(); i++)
 	{
 		osg::Vec2 startingPosConfig = robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getPosition();
 		float floatingAzimuth = robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getAzimuth();
 		arrStartingPosition.push_back(startingPosConfig);
 		arrAzimth.push_back(floatingAzimuth);
-	}*/
+	}
 
 	//for efficeint memory management do below ------ i am not sure
 	//delete input;
@@ -303,18 +303,18 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	//		startPositionId_)->getAzimuth();
 
 
-	for(int i = 0; i < robot.size(); i++){
+	for(int i = 0; i < robots.size(); i++){
 	osg::Quat roboRot;
 	roboRot.makeRotate(osg::inDegrees(arrAzimth[i]), osg::Vec3(0,0,1));
 	
-		robot[i]->rotateRobot(roboRot);
-		robot[i]->getBB(minX[i], maxX[i], minY[i], maxY[i], minZ[i], maxZ[i]);
-		robot[i]->translateRobot(
+		robots[i]->rotateRobot(roboRot);
+		robots[i]->getBB(minX[i], maxX[i], minY[i], maxY[i], minZ[i], maxZ[i]);
+		robots[i]->translateRobot(
 			osg::Vec3(arrStartingPosition[i].x(),
 					arrStartingPosition[i].y(),
 					robogenConfig_->getTerrainConfig()->getHeight()
 						+ inMm(2) - minZ[i]));
-		robot[i]->getBB(minX[i], maxX[i], minY[i], maxY[i], minZ[i], maxZ[i]);
+		robots[i]->getBB(minX[i], maxX[i], minY[i], maxY[i], minZ[i], maxZ[i]);
 	}
 	
 	for (int i = 0; i < robots.size();i++)
@@ -444,6 +444,10 @@ void Scenario::prunemul(){
 		robots.pop_back();
 	}
 }
+
+//std::vector<boost::shared_ptr<Robot>> Scenario::getRobots_101() {
+//	return robots;
+//}
 
 
 }

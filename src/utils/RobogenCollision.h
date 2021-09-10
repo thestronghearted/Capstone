@@ -33,7 +33,6 @@
 #include <boost/shared_ptr.hpp>
 #include "scenario/Scenario.h"
 #include "model/Model.h"
-
 #include <map>
 
 namespace robogen {

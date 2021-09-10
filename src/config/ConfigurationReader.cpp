@@ -306,6 +306,9 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 			startPositions.reset(new StartPositionConfig(startPositionVector));
 		
 		}
+	/**
+	 * This segment below reads in multiple starting positions from the StartPosition.txt
+	 */
 	} else { //still need to add code to handle inputted start files
 
 		startPositionFile = vm["startPositionConfigFile"].as<std::string>();

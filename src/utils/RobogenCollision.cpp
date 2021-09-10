@@ -34,13 +34,14 @@
 
 #include <algorithm>
 
+
 // ODE World
 extern dWorldID odeWorld;
 
 // Container for collisions
 extern dJointGroupID odeContactGroup;
 
-namespace robogen {
+namespace robogen {	
 
 const int MAX_CONTACTS = 32; // maximum number of contact points per body
 
@@ -49,14 +50,20 @@ CollisionData::CollisionData(boost::shared_ptr<Scenario> scenario) :
 		scenario_(scenario), hasObstacleCollisions_(false) {
 
 	//numCulled = 0;
+	//hasObstacleCollisions_ = false;
+	//scenario_ = scenario;
+	std::vector<boost::shared_ptr<Robot>> robots = scenario.getRobot();
 
-	for (size_t i=0; i<scenario->getRobot()->getBodyParts().size(); ++i) {
-		boost::shared_ptr<Model> model =
-				scenario->getRobot()->getBodyParts()[i];
-		for(size_t j=0; j<model->getBodies().size(); ++j) {
-			geomModelMap_[model->getBodies()[j]->getGeom()] = model;
+	for (int k = 0; k < robots.size(); k++)
+	{
+		for(size_t i=0; i<robots[k]->getBodyParts().size(); ++i) {
+			boost::shared_ptr<Model> model =
+					robots[k]->getBodyParts()[i];
+			for(size_t j=0; j<model->getBodies().size(); ++j) {
+				geomModelMap_[model->getBodies()[j]->getGeom()] = model;
+			}
+
 		}
-
 	}
 }
 

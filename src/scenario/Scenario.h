@@ -83,7 +83,7 @@ public:
 	/**
 	 * @return the robot
 	 */
-	boost::shared_ptr<Robot> getRobot();
+	std::vector<boost::shared_ptr<Robot>> getRobot();
 
 	/**
 	 * @return the robogen configuration
@@ -152,6 +152,8 @@ public:
 		std::vector<boost::shared_ptr<Robot>> robot);
 
 	void prunemul();
+
+	//std::vector<boost::shared_ptr<Robot>> getRobots_101();
 	/////////////////////////////////////////////////////////////////
 private:
 
