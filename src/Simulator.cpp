@@ -683,6 +683,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 
 		boost::shared_ptr<CollisionData> collisionData(
 				new CollisionData(scenario) ); //SEGMENTATION FAULT IN HERE
+		
 		double step = configuration->getTimeStepLength();
 		while ((t < configuration->getSimulationTime())
 			   && (!(visualize && viewer->done()))) {
@@ -693,7 +694,6 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 				}
 			}
 
-	
 			if ((count++) % 500 == 0) {
 			 	std::cout << "." << std::flush;
 			}
@@ -712,7 +712,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 			/**
 			 * loop through every robot
 			 */
-			for(int k = 0 ; k < robots.size();k++){
+			for(int k = 0 ; k < robots.size()-1;k++){		
 				if (configuration->isCapAlleration()) {
 					dBodyID rootBody =
 							robots[k]->getCoreComponent()->getRoot()->getBody();
@@ -854,8 +854,8 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 
 				if(log) {
 					log->logPosition(
-						scenario->getRobot(
-								)[0]->getCoreComponent()->getRootPosition());
+						scenario->getRobots(
+								)->getCoreComponent()->getRootPosition());
 				}
 
 				if(webGLlogger) {

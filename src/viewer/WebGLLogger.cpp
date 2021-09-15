@@ -66,7 +66,7 @@ const char *WebGLLogger::LIGHT_TAGS = "lights";
 WebGLLogger::WebGLLogger(std::string inFileName,
 		boost::shared_ptr<Scenario> in_scenario, double targetFrameRate) :
 		frameRate(targetFrameRate), lastFrame(-1000.0), robot(
-				in_scenario->getRobot()), scenario(in_scenario), fileName(
+				in_scenario->getRobots()[0]), scenario(in_scenario), fileName(
 				inFileName) {
 	this->jsonRoot = json_object();
 	this->jsonStructure = json_array();

@@ -211,9 +211,9 @@ void Scenario::prune(){
 	robot_.reset();
 }
 
-std::vector<boost::shared_ptr<Robot>> Scenario::getRobot() {
-	return robots;
-}
+//boost::shared_ptr<Robot> Scenario::getRobot() {
+//	return robot_;
+//}
 
 boost::shared_ptr<RobogenConfig> Scenario::getRobogenConfig() {
 	return robogenConfig_;
@@ -445,9 +445,9 @@ void Scenario::prunemul(){
 	}
 }
 
-//std::vector<boost::shared_ptr<Robot>> Scenario::getRobots_101() {
-//	return robots;
-//}
+std::vector<boost::shared_ptr<Robot>> Scenario::getRobots() {
+	return robots;
+}
 
 
 }

@@ -115,6 +115,9 @@ private:
 
 	std::vector<boost::shared_ptr<RenderModel> > renderModels;
 
+	std::vector<std::vector<boost::shared_ptr<RenderModel>> > renderModels1;
+
+
 };
 
 }

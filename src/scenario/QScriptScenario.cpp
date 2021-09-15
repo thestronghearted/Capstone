@@ -133,7 +133,6 @@ QScriptScenario::~QScriptScenario() {
 }
 
 bool QScriptScenario::setupSimulation() {
-
 	// set up exposed stuff before user's setup
 	qRobot_ = engine_->newQObject(new qscript::QRobot(Scenario::getRobot()),
 			QScriptEngine::ScriptOwnership);

@@ -52,7 +52,7 @@ CollisionData::CollisionData(boost::shared_ptr<Scenario> scenario) :
 	//numCulled = 0;
 	//hasObstacleCollisions_ = false;
 	//scenario_ = scenario;
-	std::vector<boost::shared_ptr<Robot>> robots = scenario.getRobot();
+	std::vector<boost::shared_ptr<Robot>> robots = scenario_->getRobots();
 
 	for (int k = 0; k < robots.size(); k++)
 	{

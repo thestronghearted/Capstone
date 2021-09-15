@@ -61,7 +61,7 @@ bool RacingScenario::endSimulation() {
 
 	// Compute robot ending position from its closest part to the origin
 	double minDistance = std::numeric_limits<double>::max();
-	const std::vector<boost::shared_ptr<Model> >& bodyParts = this->getRobot()[0]->getBodyParts();
+	const std::vector<boost::shared_ptr<Model> >& bodyParts = this->getRobots()[0]->getBodyParts();
 	for (unsigned int i = 0; i < bodyParts.size(); ++i) {
 		osg::Vec2 curBodyPos = osg::Vec2(bodyParts[i]->getRootPosition().x(), bodyParts[i]->getRootPosition().y());
 		osg::Vec2 curDistance = startPosition_[startPosition_.size()-1] - curBodyPos;
