@@ -401,11 +401,11 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 				return SIMULATION_FAILURE;
 			}
 
-			if(log) {
-				log->logPosition(
-					scenario->getRobot(
-							)[0]->getCoreComponent()->getRootPosition());
-			}
+			// if(log) {
+			// 	log->logPosition(
+			// 		scenario->getRobots(
+			// 				)[0]->getCoreComponent()->getRootPosition());
+			// }
 
 			if(webGLlogger) {
 				webGLlogger->log(t);
@@ -712,7 +712,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 			/**
 			 * loop through every robot
 			 */
-			for(int k = 0 ; k < robots.size()-1;k++){		
+			for(int k = 0 ; k < robots.size();k++){		
 				if (configuration->isCapAlleration()) {
 					dBodyID rootBody =
 							robots[k]->getCoreComponent()->getRoot()->getBody();
@@ -791,7 +791,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 					::fetch(neuralNetworks[k].get(), &networkOutputs[0]);
 
 					// Send control to motors
-					for (unsigned int i = 0; i < motors.size(); ++i) {
+					for (unsigned int i = 0; i < motors[k].size(); ++i) {
 
 						// Add motor noise:
 						// uniform in range +/- motorNoiseLevel * actualValue
@@ -852,11 +852,11 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 					return SIMULATION_FAILURE;
 				}
 
-				if(log) {
-					log->logPosition(
-						scenario->getRobots(
-								)->getCoreComponent()->getRootPosition());
-				}
+				// if(log) {
+				// 	log->logPosition(
+				// 		scenario->getRobots(
+				// 				)->getCoreComponent()->getRootPosition());
+				// }
 
 				if(webGLlogger) {
 					webGLlogger->log(t);

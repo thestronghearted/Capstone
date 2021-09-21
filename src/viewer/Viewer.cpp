@@ -346,7 +346,8 @@ bool Viewer::configureScenes(std::vector<std::vector<boost::shared_ptr<Model> >>
 
 	for(int j = 0; j < bodyParts.size(); j++)	
 	{	
-		for (unsigned int i= 0; i < bodyParts[j].size(); ++i) {
+		std::vector<boost::shared_ptr<RenderModel> > renderModelstemp;
+		for(unsigned int i = 0; i < bodyParts[j].size(); i++) {
 			boost::shared_ptr<RenderModel> renderModel =
 					RobogenUtils::createRenderModel(bodyParts[j][i]);
 			if (!renderModel) {
@@ -366,10 +367,15 @@ bool Viewer::configureScenes(std::vector<std::vector<boost::shared_ptr<Model> >>
 				<< std::endl;
 				return false;
 			}
-			renderModels.push_back(renderModel);
-			this->root->addChild(renderModels[i]->getRootNode());
+			renderModelstemp.push_back(renderModel);
+			//this->root->addChild(renderModels[i]->getRootNode());	
 		}
 
+		renderModels1.push_back(renderModelstemp);
+		for (int i = 0;i < renderModels1[j].size();i++)
+		{
+		this->root->addChild(renderModels1[j][i]->getRootNode());
+		}
 	}
 	// Terrain render model
 	boost::shared_ptr<TerrainRender> terrainRender(
