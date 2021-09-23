@@ -272,7 +272,7 @@ int main(int argc, char *argv[]) {
 		int check = 3;
 		while(check < argc)
 		{
-			if (std::string(argv[check]) == "--multiple") 
+			if (std::string(argv[check]) == "--multiple")
 			{
 				numberOfRobots = std::stoi(argv[check+1]);
 				break;
@@ -318,7 +318,7 @@ int main(int argc, char *argv[]) {
 
 	int currentArg = 3;
 
-	/////////////////////////////////#################need to look into
+	/////////////////////////////////################# read in start position txt file
 	if (argc >= 4 && !boost::starts_with(argv[3], "--")) {
 		std::stringstream ss(argv[3]);
 		currentArg++;
@@ -469,7 +469,7 @@ int main(int argc, char *argv[]) {
 		if(!RobotRepresentation::createRobotMessageFromFile(robotMessage,
 				robotFileString)) {
 			exitRobogen(EXIT_FAILURE);
-	}
+		}
 		robots.push_back(robotMessage);
 	}
 	// ---------------------------------------

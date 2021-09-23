@@ -71,8 +71,7 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 	osg::Vec2 startingPosition =
 			robogenConfig_->getStartingPos()->getStartPosition(
 					startPositionId_)->getPosition();
-	float startingAzimuth = robogenConfig_->getStartingPos()->getStartPosition(
-			startPositionId_)->getAzimuth();
+	float startingAzimuth = 0.1;// robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getAzimuth();
 	osg::Quat roboRot;
 	roboRot.makeRotate(osg::inDegrees(startingAzimuth), osg::Vec3(0,0,1));
 
@@ -275,11 +274,22 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	//std::vector<boost::shared_ptr<StartPosition> > insertStartPositions = robogenConfig_->getStartingPos()->getStartPosition(
 	//				startPositionId_)->getPosition();
 	
+	/**
+	 * Stores the azimuths into a vector
+	 */
 	for (int i = 0; i < robots.size();i++)
 	{
-		osg::Vec2 input = osg::Vec2f(i, i);
+		osg::Vec2 input = osg::Vec2f(i-i*0.5, 0);
 		arrStartingPosition.push_back(input);
-		arrAzimth.push_back(0); ////////still need to remove hard code
+		if (i != 0)
+		{
+			arrAzimth.push_back(0);
+		}
+		else
+		{
+			arrAzimth.push_back(0); ////////still need to remove hard code
+		}
+		
 	}
 
 	/**

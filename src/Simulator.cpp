@@ -682,7 +682,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		double t = 0;
 
 		boost::shared_ptr<CollisionData> collisionData(
-				new CollisionData(scenario) ); //SEGMENTATION FAULT IN HERE
+				new CollisionData(scenario) );
 		
 		double step = configuration->getTimeStepLength();
 		while ((t < configuration->getSimulationTime())
