@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
 		exitRobogen(EXIT_FAILURE);
 	}
 	///new started
-	int numberOfRobots = 1;
+	int numberOfRobots = 2;
 	if (argc >= 4) //checks for the number of robots inputed (this is for homogonouse)
 	{
 		int check = 3;
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	if (numberOfRobots == 1) // if there are multiple robots
+	if (numberOfRobots != 1) // if there are multiple robots
 	{
 		// Decode configuration file
 	boost::shared_ptr<RobogenConfig> configuration =
@@ -338,7 +338,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	bool visualize = true;
-	bool startPaused = false;
+	bool startPaused = true;
 	double speed = 1.0;
 	bool debug = false;
 	int seed = -1;
@@ -428,7 +428,6 @@ int main(int argc, char *argv[]) {
 		}
 
 	}
-
 	if (recording && !visualize) {
 		std::cerr << "Cannot record without visualization enabled!" <<
 				std::endl;
@@ -461,16 +460,30 @@ int main(int argc, char *argv[]) {
 	// Robot decoding HERE!
 	// --------------------------------------- 
 	//HERE! 
-	robogenMessage::Robot robotMessage;
-	std::string robotFileString(argv[1]);
-	std::vector<std::reference_wrapper<robogenMessage::Robot>> robots; //multiple robots
+	std::vector<robogenMessage::Robot> robotMessages;
 	for (int i = 0;i<numberOfRobots;++i) //assign the multiple robots to a vector
 	{
-		if(!RobotRepresentation::createRobotMessageFromFile(robotMessage,
-				robotFileString)) {
+		robogenMessage::Robot robotMessage;
+		robotMessages.push_back(robotMessage);
+	}
+	std::string robotFileString(argv[1]);
+	std::vector<std::reference_wrapper<robogenMessage::Robot>> robots; //multiple robots
+
+
+	std::vector<std::string> fileNames;
+	fileNames.push_back("../examples/cart.txt");
+	fileNames.push_back("../examples/simpleRobot.txt");
+
+
+
+
+	for (int i = 0;i<numberOfRobots;++i) //assign the multiple robots to a vector
+	{
+		if(!RobotRepresentation::createRobotMessageFromFile(robotMessages[i],
+				fileNames[i])) {
 			exitRobogen(EXIT_FAILURE);
 		}
-		robots.push_back(robotMessage);
+		robots.push_back(robotMessages[i]);
 	}
 	// ---------------------------------------
 	// Setup environment
@@ -483,7 +496,7 @@ int main(int argc, char *argv[]) {
 	}
 	scenario->setStartingPosition(desiredStart); /////////////////issue in multiple
 
-	// ---------------------------------------
+	// --------getCurrent-------------------------------
 	// Set up log files
 	// ---------------------------------------
 
@@ -509,7 +522,6 @@ int main(int argc, char *argv[]) {
 				speed, recording, recordFrequency,
 				recordDirectoryName);
 	}
-	
 	unsigned int simulationResult = runSimulations1(scenario, configuration,
 			robots, viewer, rng, true, log);	//runs the simulation
 	
@@ -530,8 +542,11 @@ int main(int argc, char *argv[]) {
 	 } else {
 	 	fitness = scenario->getFitness();
 	 }
-	std::cout << "Fitness for the current solution: " << fitness << std::endl
+	for(int i =0 ; i < numberOfRobots; i++){
+		std::cout << "Fitness for Robot "<< (i+1) << ": " << fitness << std::endl
 			<< std::endl;
+	}
+	
 
 	exitRobogen(EXIT_SUCCESS);
 	}
@@ -557,7 +572,7 @@ int main(int argc, char *argv[]) {
 
 	// Decode configuration file
 	boost::shared_ptr<RobogenConfig> configuration =
-			ConfigurationReader::parseConfigurationFile(std::string(argv[2]),1); //added number of robots
+			ConfigurationReader::parseConfigurationFile(std::string(argv[2]),numberOfRobots); //added number of robots
 	if (configuration == NULL) {
 		std::cerr << "Problems parsing the configuration file. Quit."
 				<< std::endl;

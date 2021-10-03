@@ -15,11 +15,9 @@ FileViewerLog.cpp: to handle recording multiple robots (To be done later)
         of the vector of Robots
 
 ChasingScenario.cpp
-    -> Edit to optimize threads?
     -> need to change simulation step
 
 RacingScenario.cpp
-    -> Edit to optimize threads?
     -> need to add analysis for multiple robots
 
 RobogenConfig.h (Potential Change)

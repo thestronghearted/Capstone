@@ -277,7 +277,8 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	/**
 	 * Stores the azimuths into a vector
 	 */
-	for (int i = 0; i < robots.size();i++)
+
+	/*for (int i = 0; i < robots.size();i++)
 	{
 		osg::Vec2 input = osg::Vec2f(i-0.5*i, 0);
 		arrStartingPosition.push_back(input);
@@ -290,12 +291,23 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 			arrAzimth.push_back(90); ////////still need to remove hard code
 		}
 		
-	}
+	}*/
 
+	/**
+	 * Reading Starting Positions from the textfiles and not hardcoded as done above
+	 */
+	for (int i = 0; i < robots.size(); i++)
+	{
+		osg::Vec2 inputPos = robogenConfig_->getStartingPos()->getStartPosition(i)->getPosition();
+		arrStartingPosition.push_back(inputPos);
+		float inputAzi = robogenConfig_->getStartingPos()->getStartPosition(i)->getAzimuth();
+		arrAzimth.push_back(inputAzi);
+	}
 	/**
 	 * Reading in the S.Pos from the config, storing it as a vec. pushing it to vec of vectors
 	 */
 
+	/*
 	for (int i = 0; i < robots.size(); i++)
 	{
 		osg::Vec2 startingPosConfig = robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getPosition();
@@ -303,6 +315,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 		arrStartingPosition.push_back(startingPosConfig);
 		arrAzimth.push_back(floatingAzimuth);
 	}
+	*/
 
 	//for efficeint memory management do below ------ i am not sure
 	//delete input;

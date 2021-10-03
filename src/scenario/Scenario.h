@@ -156,6 +156,12 @@ public:
 
 	void prunemul();
 
+	//virtual bool setupSimulations();
+
+	//virtual std::vector<double> getFitnessLevel();
+
+	//virtual bool endSimulations();
+
 	//std::vector<boost::shared_ptr<Robot>> getRobots_101();
 	/////////////////////////////////////////////////////////////////
 private:

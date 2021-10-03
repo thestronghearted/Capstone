@@ -63,6 +63,10 @@ public:
 	virtual double getFitness();
 	virtual bool remainingTrials();
 	virtual int getCurTrial() const;
+	//
+	//virtual bool setupSimulations();
+	//virtual std::vector<double> getFitnessLevel();
+	//virtual bool endSimulations();
 
 private:
 
@@ -70,6 +74,9 @@ private:
 	std::vector<double> distances_;
 	unsigned int curTrial_;
 
+	//////
+	std::vector<double> fitnesses;
+	std::vector<std::vector<double>> distances;
 };
 
 }

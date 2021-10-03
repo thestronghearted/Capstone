@@ -67,7 +67,7 @@ public:
 			bool capAcceleration, float maxLinearAcceleration,
 			float maxAngularAcceleration, int maxDirectionShiftsPerSecond,
 			osg::Vec3 gravity, bool disallowObstacleCollisions,
-			unsigned int obstacleOverlapPolicy) :
+			unsigned int obstacleOverlapPolicy):
 				scenario_(scenario), scenarioFile_(scenarioFile),
 				timeSteps_(timeSteps),
 				timeStepLength_(timeStepLength),
@@ -262,7 +262,6 @@ public:
 	unsigned int getObstacleOverlapPolicy() {
 		return obstacleOverlapPolicy_;
 	}
-
 	/**
 	 * Convert configuration into configuration message.
 	 */

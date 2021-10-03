@@ -96,6 +96,11 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 					"Terrain length")
 			("terrainFriction",boost::program_options::value<float>(),
 					"Terrain Friction Coefficient")
+			/**
+			 * added number of robots to config file
+			 */
+			("numberRobots", boost::program_options::value<int>(),
+					"Number Robots")
 			("startPositionConfigFile",
 					boost::program_options::value<std::string>(),
 					"Start Positions Configuration File")
@@ -269,6 +274,22 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 			return boost::shared_ptr<RobogenConfig>();
 		}
 	}
+
+	/**
+	 * @author: Kev
+	 * Parse through config file to see how many robots are needed in simulation
+	 */
+	if (!vm.count("numberRobots"))
+	{
+		std::cout << "Number of robots not defined, using default of one robot" << std::endl;
+		numberOfRobots = 2;
+	}
+	else
+	{
+		numberOfRobots = vm["numberRobots"].as<int>();
+		std::cout << "The number of robots used are: " << numberOfRobots << std::endl;
+	}
+
 
 	boost::shared_ptr<StartPositionConfig> startPositions;  
 	std::string startPositionFile = "";
