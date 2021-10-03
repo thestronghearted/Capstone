@@ -1,0 +1,24 @@
+demo:
+    1. report on progress
+        a. visualize multiple homogenous robots
+        b. collision between robots works
+        c. 
+    2. demo:
+        a. multiple carts in the same direction
+        b. 2 carts colliding
+        c. 2 starfish
+        d. memes
+        e. any requests/tips?
+    3. issues:
+        a. cannot simulate robots with json files
+        b. 
+TODO:
+    a. get starting positions from txt file in termianl
+    b. thread robot visualization
+    c. get correct fitness values
+    d. simulate hetrogeneous robots
+    e. implement json file
+
+QUESTIONS: for us?
+
+     

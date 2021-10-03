@@ -279,7 +279,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	 */
 	for (int i = 0; i < robots.size();i++)
 	{
-		osg::Vec2 input = osg::Vec2f(i-i*0.5, 0);
+		osg::Vec2 input = osg::Vec2f(i-0.5*i, 0);
 		arrStartingPosition.push_back(input);
 		if (i != 0)
 		{
@@ -287,7 +287,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 		}
 		else
 		{
-			arrAzimth.push_back(0); ////////still need to remove hard code
+			arrAzimth.push_back(90); ////////still need to remove hard code
 		}
 		
 	}

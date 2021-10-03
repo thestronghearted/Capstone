@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
 		exitRobogen(EXIT_FAILURE);
 	}
 	///new started
-	int numberOfRobots = 2;
+	int numberOfRobots = 1;
 	if (argc >= 4) //checks for the number of robots inputed (this is for homogonouse)
 	{
 		int check = 3;
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	if (numberOfRobots != 1) // if there are multiple robots
+	if (numberOfRobots == 1) // if there are multiple robots
 	{
 		// Decode configuration file
 	boost::shared_ptr<RobogenConfig> configuration =
