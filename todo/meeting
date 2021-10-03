@@ -13,12 +13,16 @@ demo:
         a. cannot simulate robots with json files
         b. 
 TODO:
-    a. get starting positions from txt file in termianl
+    a. get starting positions from txt file in terminal
     b. thread robot visualization
     c. get correct fitness values
     d. simulate hetrogeneous robots
     e. implement json file
 
-QUESTIONS: for us?
-
-     
+Todo:
+    a.set terminal access for files for heterogenous
+    b.thread robot visualization
+    c.add obsticals
+    d.make sure json splitting works
+    e.create testing classes
+    f.fitness testing

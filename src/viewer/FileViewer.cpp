@@ -266,7 +266,7 @@ int main(int argc, char *argv[]) {
 		exitRobogen(EXIT_FAILURE);
 	}
 	///new started
-	int numberOfRobots = 2;
+	int numberOfRobots = 3;
 	if (argc >= 4) //checks for the number of robots inputed (this is for homogonouse)
 	{
 		int check = 3;
@@ -471,9 +471,9 @@ int main(int argc, char *argv[]) {
 
 
 	std::vector<std::string> fileNames;
+	fileNames.push_back("../examples/walkingStarfish.json");
+	fileNames.push_back("../examples/new/rob_single.json");
 	fileNames.push_back("../examples/cart.txt");
-	fileNames.push_back("../examples/simpleRobot.txt");
-
 
 
 
