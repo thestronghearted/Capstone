@@ -18,14 +18,14 @@ DONE:
     get starting positions from txt file in terminal
     simulate hetrogeneous robots
     implement json file
+    thread robot visualization
+    add obstacle
+    make sure json splitting works
 
 
 
 TODO:
     a.make it look pretty, with comments
-    b.thread robot visualization -max
-    c.add obstacle -kevaalin
-    d.make sure json splitting works
-    e.create testing classes
-    f.fitness testing
+    c.create testing classes
+    d.fitness testing
 

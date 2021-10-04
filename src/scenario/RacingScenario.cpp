@@ -98,26 +98,30 @@ int RacingScenario::getCurTrial() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/*
+
 std::vector<double> RacingScenario::getFitnessLevel()
 {
-	for (unsigned int x = 0;x<2;x++)
+	std::vector<double> fitnesses;
+	for (unsigned int x = 0;x<numberOfRobots;x++)
 	{
 		double fitness = 1000000;
-		for (unsigned int i = 0; i < distances_.size(); ++i) {
-			if (distances_[i] < fitness)
-				fitness = distances_[i];
+		for (unsigned int i = 0; i < distances[x].size(); ++i) {
+			if (distances[x][i] < fitness)
+				fitness = distances[x][i];
 		}
+		fitnesses.push_back(fitness);
 	}
 	return fitnesses;
 }
 
-bool RacingScenario::setupSimulations() {
-
+bool RacingScenario::setupSimulations(int numberofRobots) {
+	numberOfRobots = numberofRobots;
 	// Compute robot start position,
-	for (unsigned int i = 0;i<2;i++)
+	for (unsigned int i = 0;i<numberOfRobots;i++)
 	{
-	startPosition_.push_back(this->getRobogenConfig()->getStartingPos()->getStartPosition(i)->getPosition());
+		std::vector<osg::Vec2> startPositiontemp;
+		startPositiontemp.push_back(this->getRobogenConfig()->getStartingPos()->getStartPosition(i)->getPosition());	
+		startPositions_.push_back(startPositiontemp);
 	}
 	return true;
 
@@ -125,14 +129,14 @@ bool RacingScenario::setupSimulations() {
 
 bool RacingScenario::endSimulations() {
     
-	for (unsigned int x = 0; x<2; x++)
+	for (unsigned int x = 0; x<numberOfRobots; x++)
 	{
 		// Compute robot ending position from its closest part to the origin
 		double minDistance = std::numeric_limits<double>::max();
 		const std::vector<boost::shared_ptr<Model> >& bodyParts = this->getRobots()[x]->getBodyParts();
 		for (unsigned int i = 0; i < bodyParts.size(); ++i) {
 			osg::Vec2 curBodyPos = osg::Vec2(bodyParts[i]->getRootPosition().x(), bodyParts[i]->getRootPosition().y());
-			osg::Vec2 curDistance = startPosition_[startPosition_.size()-1] - curBodyPos;
+			osg::Vec2 curDistance = startPositions_[x][startPositions_[x].size()-1] - curBodyPos;
 			if (curDistance.length() < minDistance) {
 				minDistance = curDistance.length();
 			}
@@ -142,11 +146,13 @@ bool RacingScenario::endSimulations() {
 		// Set next starting position
 		this->setStartingPosition(curTrial_);
 	}
+	distances.push_back(distances_);
+	distances_.clear();
 	return true;
 
 }
 
-*/
+
 
 
 

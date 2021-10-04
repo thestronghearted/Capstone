@@ -64,9 +64,9 @@ public:
 	virtual bool remainingTrials();
 	virtual int getCurTrial() const;
 	//
-	//virtual bool setupSimulations();
-	//virtual std::vector<double> getFitnessLevel();
-	//virtual bool endSimulations();
+	bool setupSimulations(int numberofRobots);
+	std::vector<double> getFitnessLevel();
+	bool endSimulations();
 
 private:
 
@@ -75,8 +75,10 @@ private:
 	unsigned int curTrial_;
 
 	//////
+	std::vector<std::vector<osg::Vec2>> startPositions_;
 	std::vector<double> fitnesses;
 	std::vector<std::vector<double>> distances;
+	int numberOfRobots = 1;
 };
 
 }

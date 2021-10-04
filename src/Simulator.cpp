@@ -467,6 +467,9 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//THREAD LOOP   
+//parameters: robots[k], configuration, bodyparts[k]], sensors[k], neuralnetwork[k], motors[k], env, count, t, previousAngelVel
+
 unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,  //runs the simulation
 		boost::shared_ptr<RobogenConfig> configuration,
 		const std::vector<std::reference_wrapper<robogenMessage::Robot> > robotMessage,
@@ -675,6 +678,8 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		dReal previousLinVel[3];
 		dReal previousAngVel[3];
 
+		
+
 		// ---------------------------------------
 		// Main Loop
 		// ---------------------------------------
@@ -685,6 +690,177 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 				new CollisionData(scenario) );
 		
 		double step = configuration->getTimeStepLength();
+
+		// THREAD LAMBDA BEGIN ------------------------------------------------------
+		//
+
+		auto updateRobot = [&](boost::shared_ptr<robogen::Robot> robot, //robots[k]
+                 boost::shared_ptr<robogen::RobogenConfig> configurations, //configuration
+                std::vector<boost::shared_ptr<robogen::Model>> bodyParts,//bodyparts[k]]
+                std::vector<boost::shared_ptr<robogen::Sensor>> sensors, //sensors[k]
+                boost::shared_ptr<NeuralNetwork> neuralNetwork, //neuralnetwork[k]
+                std::vector<boost::shared_ptr<robogen::Motor>> motors) //motors[k]
+		{
+			if (configuration->isCapAlleration()) 
+			{
+				dBodyID rootBody =
+						robot->getCoreComponent()->getRoot()->getBody();
+				const dReal *angVel, *linVel;
+
+				angVel = dBodyGetAngularVel(rootBody);
+				linVel = dBodyGetLinearVel(rootBody);
+
+				if(t > 0) {
+					// TODO make this use the step size and update default
+					// limits to account for this
+					double angAccel = dCalcPointsDistance3(
+							angVel, previousAngVel);
+					double linAccel = dCalcPointsDistance3(
+							linVel, previousLinVel);
+
+					if(angAccel > configuration->getMaxAngularAcceleration() ||
+					linAccel > configuration->getMaxLinearAcceleration()) {
+
+						printf("EVALUATION CANCELED: max accel");
+						printf(" exceeded at time %f.", t);
+						printf(" Angular accel: %f, Linear accel: %f.\n",
+								angAccel, linAccel);
+						printf("Will give %f fitness.\n", MIN_FITNESS);
+						constraintViolated = true;
+						//break;
+					}
+
+				}
+
+				// save current velocities as previous
+				for(unsigned int j=0; j<3; j++) {
+					previousAngVel[j] = angVel[j];
+					previousLinVel[j] = linVel[j];
+				}
+			}
+
+			float networkInput[MAX_INPUT_NEURONS];
+			float networkOutputs[MAX_OUTPUT_NEURONS];
+			
+			// Update Sensors
+			for (unsigned int i = 0; i < bodyParts.size();++i) 
+			{
+				if (boost::dynamic_pointer_cast<
+						PerceptiveComponent>(bodyParts[i])) {
+					boost::dynamic_pointer_cast<
+							PerceptiveComponent>(bodyParts[i])->updateSensors(
+							env);
+				}
+			}
+
+			if(((count - 1) % configuration->getActuationPeriod()) == 0) 
+			{
+				// Feed neural network
+				for (unsigned int i = 0; i < sensors.size(); ++i) {
+					networkInput[i] = sensors[i]->read();
+
+					// Add sensor noise: Gaussian with std dev of
+					// sensorNoiseLevel * actualValue
+					if (configuration->getSensorNoiseLevel() > 0.0) {
+						networkInput[i] += (normalDistribution(rng) *
+								configuration->getSensorNoiseLevel() *
+								networkInput[i]);
+					}
+				}
+				if (log) {
+					log->logSensors(networkInput, sensors.size());
+				}
+
+
+				::feed(neuralNetwork.get(), &networkInput[0]);
+
+				// Step the neural network
+				::step(neuralNetwork.get(), t);
+
+				// Fetch the neural network ouputs
+				::fetch(neuralNetwork.get(), &networkOutputs[0]);
+
+				// Send control to motors
+				for (unsigned int i = 0; i < motors.size(); ++i) {
+
+					// Add motor noise:
+					// uniform in range +/- motorNoiseLevel * actualValue
+					if(configuration->getMotorNoiseLevel() > 0.0) {
+						networkOutputs[i] += (
+									((uniformDistribution(rng) *
+									2.0 *
+									configuration->getMotorNoiseLevel())
+									- configuration->getMotorNoiseLevel())
+									* networkOutputs[i]);
+					}
+
+
+					if (boost::dynamic_pointer_cast<
+							RotationMotor>(motors[i])) {
+						boost::dynamic_pointer_cast<RotationMotor>(motors[i]
+						)->setDesiredVelocity(networkOutputs[i], step *
+										configuration->getActuationPeriod());
+					} else if (boost::dynamic_pointer_cast<
+							ServoMotor>(motors[i])) {
+						boost::dynamic_pointer_cast<ServoMotor>(motors[i]
+						)->setDesiredPosition(networkOutputs[i], step *
+								configuration->getActuationPeriod());
+						//motor->setPosition(networkOutputs[i], step *
+						//		configuration->getActuationPeriod());
+					}
+
+				}
+
+				if(log) {
+					log->logMotors(networkOutputs, motors.size());
+				}
+			}
+
+			bool motorBurntOut = false;
+			for (unsigned int i = 0; i < motors.size(); ++i) 
+			{
+				motors[i]->step( step ) ; //* configuration->getActuationPeriod() );
+
+				// TODO find a cleaner way to do this
+				// for now will reuse accel cap infrastructure
+				if (motors[i]->isBurntOut()) {
+					std::cout << "Motor burnt out, will terminate now "
+							<< std::endl;
+					motorBurntOut = true;
+					constraintViolated = true;
+				}
+
+			}
+
+			if(constraintViolated || motorBurntOut) 
+			{
+				//::break;
+			}
+
+			// if (!scenario->afterSimulationStep()) 
+			// {
+			// 	std::cout
+			// 			<< "Cannot execute scenario after simulation step. Quit."
+			// 			<< std::endl;
+			// 	return SIMULATION_FAILURE;
+			// }
+
+			// if(log) {
+			// 	log->logPosition(
+			// 		scenario->getRobots(
+			// 				)->getCoreComponent()->getRootPosition());
+			// }
+
+			// if(webGLlogger) {
+			// 	webGLlogger->log(t);
+			// }
+				
+		};
+		
+			
+		// THREAD LAMBDA END ---------------------------------------------------------
+		//
+
 		while ((t < configuration->getSimulationTime())
 			   && (!(visualize && viewer->done()))) {
 				   
@@ -712,158 +888,16 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 			/**
 			 * loop through every robot
 			 */
-			for(int k = 0 ; k < robots.size();k++){		
-				if (configuration->isCapAlleration()) {
-					dBodyID rootBody =
-							robots[k]->getCoreComponent()->getRoot()->getBody();
-					const dReal *angVel, *linVel;
-
-					angVel = dBodyGetAngularVel(rootBody);
-					linVel = dBodyGetLinearVel(rootBody);
-
-					if(t > 0) {
-						// TODO make this use the step size and update default
-						// limits to account for this
-						double angAccel = dCalcPointsDistance3(
-								angVel, previousAngVel);
-						double linAccel = dCalcPointsDistance3(
-								linVel, previousLinVel);
-
-						if(angAccel > configuration->getMaxAngularAcceleration() ||
-						linAccel > configuration->getMaxLinearAcceleration()) {
-
-							printf("EVALUATION CANCELED: max accel");
-							printf(" exceeded at time %f.", t);
-							printf(" Angular accel: %f, Linear accel: %f.\n",
-									angAccel, linAccel);
-							printf("Will give %f fitness.\n", MIN_FITNESS);
-							constraintViolated = true;
-							break;
-						}
-
-					}
-
-					// save current velocities as previous
-					for(unsigned int j=0; j<3; j++) {
-						previousAngVel[j] = angVel[j];
-						previousLinVel[j] = linVel[j];
-					}
-				}
-
-				float networkInput[MAX_INPUT_NEURONS];
-				float networkOutputs[MAX_OUTPUT_NEURONS];
-				
-				// Update Sensors
-				for (unsigned int i = 0; i < bodyParts.size();
-						++i) {
-					if (boost::dynamic_pointer_cast<
-							PerceptiveComponent>(bodyParts[k][i])) {
-						boost::dynamic_pointer_cast<
-								PerceptiveComponent>(bodyParts[k][i])->updateSensors(
-								env);
-					}
-				}
-
-				if(((count - 1) % configuration->getActuationPeriod()) == 0) {
-					// Feed neural network
-					for (unsigned int i = 0; i < sensors.size(); ++i) {
-						networkInput[i] = sensors[k][i]->read();
-
-						// Add sensor noise: Gaussian with std dev of
-						// sensorNoiseLevel * actualValue
-						if (configuration->getSensorNoiseLevel() > 0.0) {
-							networkInput[i] += (normalDistribution(rng) *
-									configuration->getSensorNoiseLevel() *
-									networkInput[i]);
-						}
-					}
-					if (log) {
-						log->logSensors(networkInput, sensors.size());
-					}
-
-
-					::feed(neuralNetworks[k].get(), &networkInput[0]);
-
-					// Step the neural network
-					::step(neuralNetworks[k].get(), t);
-
-					// Fetch the neural network ouputs
-					::fetch(neuralNetworks[k].get(), &networkOutputs[0]);
-
-					// Send control to motors
-					for (unsigned int i = 0; i < motors[k].size(); ++i) {
-
-						// Add motor noise:
-						// uniform in range +/- motorNoiseLevel * actualValue
-						if(configuration->getMotorNoiseLevel() > 0.0) {
-							networkOutputs[i] += (
-										((uniformDistribution(rng) *
-										2.0 *
-										configuration->getMotorNoiseLevel())
-										- configuration->getMotorNoiseLevel())
-										* networkOutputs[i]);
-						}
-
-
-						if (boost::dynamic_pointer_cast<
-								RotationMotor>(motors[k][i])) {
-							boost::dynamic_pointer_cast<RotationMotor>(motors[k][i]
-							)->setDesiredVelocity(networkOutputs[i], step *
-											configuration->getActuationPeriod());
-						} else if (boost::dynamic_pointer_cast<
-								ServoMotor>(motors[k][i])) {
-							boost::dynamic_pointer_cast<ServoMotor>(motors[k][i]
-							)->setDesiredPosition(networkOutputs[i], step *
-									configuration->getActuationPeriod());
-							//motor->setPosition(networkOutputs[i], step *
-							//		configuration->getActuationPeriod());
-						}
-
-					}
-
-					if(log) {
-						log->logMotors(networkOutputs, motors[k].size());
-					}
-				}
-
-				bool motorBurntOut = false;
-				for (unsigned int i = 0; i < motors[k].size(); ++i) {
-					motors[k][i]->step( step ) ; //* configuration->getActuationPeriod() );
-
-					// TODO find a cleaner way to do this
-					// for now will reuse accel cap infrastructure
-					if (motors[k][i]->isBurntOut()) {
-						std::cout << "Motor burnt out, will terminate now "
-								<< std::endl;
-						motorBurntOut = true;
-						constraintViolated = true;
-					}
-
-				}
-
-				if(constraintViolated || motorBurntOut) {
-					break;
-				}
-
-				if (!scenario->afterSimulationStep()) {
-					std::cout
-							<< "Cannot execute scenario after simulation step. Quit."
-							<< std::endl;
-					return SIMULATION_FAILURE;
-				}
-
-				// if(log) {
-				// 	log->logPosition(
-				// 		scenario->getRobots(
-				// 				)->getCoreComponent()->getRootPosition());
-				// }
-
-				if(webGLlogger) {
-					webGLlogger->log(t);
-				}
-		
+			std::vector<std::thread> threads;
+			for(int k = 0 ; k < robots.size();k++)
+			{	
+				threads.push_back(std::thread(updateRobot, robots[k], configuration, bodyParts[k], sensors[k], neuralNetworks[k], motors[k]));
 			}
-			
+			//join threads
+			for(int k = 0 ; k < robots.size();k++)
+			{	
+				threads[k].join();
+			}
 
 			// Elapsed time since last call
 			env->setTimeElapsed(step);

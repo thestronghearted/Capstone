@@ -39,6 +39,7 @@
 #include "viewer/FileViewerLog.h"
 #include "viewer/IViewer.h"
 #include <thread>
+#include <vector>
 
 #define MIN_FITNESS (-10000.0)
 
@@ -90,14 +91,6 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		const std::vector<std::reference_wrapper<robogenMessage::Robot>>  robotMessage, IViewer *viewer,
 		boost::random::mt19937 &rng,
 		bool onlyOnce, boost::shared_ptr<FileViewerLog> log);
-
-void updateRobot(boost::shared_ptr<robogen::Robot> robot, //robots[k]
-                 boost::shared_ptr<robogen::RobogenConfig> configurations, //configuration
-                std::vector<boost::shared_ptr<robogen::Model>> bodyparts,//bodyparts[k]]
-                std::vector<boost::shared_ptr<robogen::Sensor>> sensors, //sensors[k]
-                boost::shared_ptr<NeuralNetwork> neuralnetwork, //neuralnetwork[k]
-                std::vector<boost::shared_ptr<robogen::Motor>> motors);
-
 
 }
 

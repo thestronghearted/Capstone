@@ -88,8 +88,7 @@ public:
 				maxDirectionShiftsPerSecond_(maxDirectionShiftsPerSecond),
 				gravity_(gravity),
 				disallowObstacleCollisions_(disallowObstacleCollisions),
-				obstacleOverlapPolicy_(obstacleOverlapPolicy)
-				,numberOfRobots_(numberOfRobots) 
+				obstacleOverlapPolicy_(obstacleOverlapPolicy) 
 				{
 
 		simulationTime_ = timeSteps * timeStepLength;
