@@ -67,7 +67,9 @@ public:
 			bool capAcceleration, float maxLinearAcceleration,
 			float maxAngularAcceleration, int maxDirectionShiftsPerSecond,
 			osg::Vec3 gravity, bool disallowObstacleCollisions,
-			unsigned int obstacleOverlapPolicy):
+			unsigned int obstacleOverlapPolicy
+			, unsigned int numberOfRobots
+			):
 				scenario_(scenario), scenarioFile_(scenarioFile),
 				timeSteps_(timeSteps),
 				timeStepLength_(timeStepLength),
@@ -86,7 +88,9 @@ public:
 				maxDirectionShiftsPerSecond_(maxDirectionShiftsPerSecond),
 				gravity_(gravity),
 				disallowObstacleCollisions_(disallowObstacleCollisions),
-				obstacleOverlapPolicy_(obstacleOverlapPolicy) {
+				obstacleOverlapPolicy_(obstacleOverlapPolicy)
+				,numberOfRobots_(numberOfRobots) 
+				{
 
 		simulationTime_ = timeSteps * timeStepLength;
 
@@ -262,6 +266,15 @@ public:
 	unsigned int getObstacleOverlapPolicy() {
 		return obstacleOverlapPolicy_;
 	}
+
+	/**
+	 * return the number of robots stored in the configuration file
+	 */
+	unsigned int getNumberOfRobots()
+	{
+		return numberOfRobots_;
+	}
+
 	/**
 	 * Convert configuration into configuration message.
 	 */
@@ -407,6 +420,11 @@ private:
 	 * initial AABB
 	 */
 	unsigned int obstacleOverlapPolicy_;
+
+	/**
+	 * stores the number of robots needed in the simulation in the configuration variable
+	 */
+	unsigned int numberOfRobots_;
 };
 
 }

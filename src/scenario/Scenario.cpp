@@ -278,7 +278,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	 * Stores the azimuths into a vector
 	 */
 
-	for (int i = 0; i < robots.size();i++)
+/*	for (int i = 0; i < robots.size();i++)
 	{
 		osg::Vec2 input = osg::Vec2f(i-0.5*i, 0);
 		arrStartingPosition.push_back(input);
@@ -292,30 +292,30 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 		}
 		
 	}
-
+*/
 	/**
 	 * Reading Starting Positions from the textfiles and not hardcoded as done above
 	 */
-	/*for (int i = 0; i < robots.size(); i++)
+	for (int i = 0; i < robogenConfig_->getNumberOfRobots(); i++)
 	{
 		osg::Vec2 inputPos = robogenConfig_->getStartingPos()->getStartPosition(i)->getPosition();
 		arrStartingPosition.push_back(inputPos);
 		float inputAzi = robogenConfig_->getStartingPos()->getStartPosition(i)->getAzimuth();
 		arrAzimth.push_back(inputAzi);
-	}*/
+	}
 	/**
 	 * Reading in the S.Pos from the config, storing it as a vec. pushing it to vec of vectors
 	 */
 
 	
-	for (int i = 0; i < robots.size(); i++)
+/*	for (int i = 0; i < robots.size(); i++)
 	{
 		osg::Vec2 startingPosConfig = robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getPosition();
 		float floatingAzimuth = robogenConfig_->getStartingPos()->getStartPosition(startPositionId_)->getAzimuth();
 		arrStartingPosition.push_back(startingPosConfig);
 		arrAzimth.push_back(floatingAzimuth);
 	}
-
+*/
 
 	//for efficeint memory management do below ------ i am not sure
 	//delete input;
@@ -353,7 +353,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	// Setup obstacles
 	boost::shared_ptr<ObstaclesConfig> obstacles =
 			robogenConfig_->getObstaclesConfig();
-	/*
+	
 	// Instance the boxes above the maximum terrain height
 	const std::vector<osg::Vec3>& c = obstacles->getCoordinates();
 	const std::vector<osg::Vec3>& s = obstacles->getSizes();
@@ -363,7 +363,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 
 	obstaclesRemoved_ = false;
 
-	double overlapMaxZ=minZ;
+	double overlapMaxZ=minZ[0]; ////////////////////////////////////////////////////////////////////////////////////
 
 	for (unsigned int i = 0; i < c.size(); ++i) {
 		boost::shared_ptr<BoxObstacle> obstacle(
@@ -383,24 +383,28 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 		 */
 
 		// Do not insert the obstacle if it is in the robot range
-	/*	bool inRangeX = false;
-		if ((oMinX <= minX && oMaxX >= maxX) || (oMinX >= minX && oMinX <= maxX)
-				|| (oMaxX >= minX && oMaxX <= maxX)) {
-			inRangeX = true;
-		}
-
+		bool inRangeX = false;
 		bool inRangeY = false;
-		if ((oMinY <= minY && oMaxY >= maxY) || (oMinY >= minY && oMinY <= maxY)
-				|| (oMaxY >= minY && oMaxY <= maxY)) {
-			inRangeY = true;
-		}
-
 		bool inRangeZ = false;
-		if ((oMinZ <= minZ && oMaxZ >= maxZ) || (oMinZ >= minZ && oMinZ <= maxZ)
-				|| (oMaxZ >= minZ && oMaxZ <= maxZ)) {
-			inRangeZ = true;
-		}
+		for (int i = 0; i < robogenConfig_->getNumberOfRobots(); i++){
+			//bool inRangeX = false;
+			if ((oMinX <= minX[i] && oMaxX >= maxX[i]) || (oMinX >= minX[i] && oMinX <= maxX[i])
+					|| (oMaxX >= minX[i] && oMaxX <= maxX[i])) {
+				inRangeX = true;
+			}
 
+			//bool inRangeY = false;
+			if ((oMinY <= minY[i] && oMaxY >= maxY[i]) || (oMinY >= minY[i] && oMinY <= maxY[i])
+					|| (oMaxY >= minY[i] && oMaxY <= maxY[i])) {
+				inRangeY = true;
+			}
+
+			//bool inRangeZ = false;
+			if ((oMinZ <= minZ[i] && oMaxZ >= maxZ[i]) || (oMinZ >= minZ[i] && oMinZ <= maxZ[i])
+					|| (oMaxZ >= minZ[i] && oMaxZ <= maxZ[i])) {
+				inRangeZ = true;
+			}
+		}
 		// Do not insert obstacles in the robot range
 		if (!(inRangeX && inRangeY && inRangeZ)) {
 			environment_->addObstacle(obstacle);
@@ -419,7 +423,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 		}
 
 	}
-
+/*
 	if (robogenConfig_->getObstacleOverlapPolicy() ==
 			RobogenConfig::ELEVATE_ROBOT) {
 
@@ -427,7 +431,8 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 				osg::Vec3(startingPosition.x(), startingPosition.y(),
 						overlapMaxZ + inMm(2) - minZ));
 	}
-	*/
+*/
+	
 	// Setup light sources
 	boost::shared_ptr<LightSourcesConfig> lightSourcesConfig =
 			robogenConfig_->getLightSourcesConfig();

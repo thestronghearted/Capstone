@@ -265,24 +265,41 @@ int main(int argc, char *argv[]) {
 		printUsage(argv);
 		exitRobogen(EXIT_FAILURE);
 	}
+	bool homogonouse = false;
+	std::vector<std::string> fileNames;
 	///new started
-	int numberOfRobots = 3;
+	int numberOfRobots = 1;
 	if (argc >= 4) //checks for the number of robots inputed (this is for homogonouse)
 	{
-		int check = 3;
+		int check = 2;
 		while(check < argc)
 		{
 			if (std::string(argv[check]) == "--multiple")
 			{
-				numberOfRobots = std::stoi(argv[check+1]);
-				break;
+				numberOfRobots = std::stoi(argv[++check]);
+				++check;
+				for (unsigned int i = 0;i<numberOfRobots;i++)
+				{
+					if (check+i == argc)
+					{
+						homogonouse = true;
+						check += i;
+						break;
+					}
+					else if ((boost::starts_with(argv[check+i], "--")))
+					{
+						homogonouse = true;
+						check += i;
+						break;
+					}
+					fileNames.push_back(argv[check+i]);
+				}
 			}
-			++check;
+			check++;
 		}
 	}
 	//new ended
-
-
+	std::cout << numberOfRobots <<std::endl;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,13 +314,13 @@ int main(int argc, char *argv[]) {
 	{
 		// Decode configuration file
 	boost::shared_ptr<RobogenConfig> configuration =
-			ConfigurationReader::parseConfigurationFile(std::string(argv[2]),numberOfRobots);  //configure with the number of robots
+			ConfigurationReader::parseConfigurationFile(std::string(argv[1]),numberOfRobots);  //configure with the number of robots
 	if (configuration == NULL) {
 		std::cerr << "Problems parsing the configuration file. Quit."
 				<< std::endl;
 		exitRobogen(EXIT_FAILURE);
 	}
-
+	
 	// verify desired start position is specified in configuration
 	unsigned int desiredStart = 0;
 	unsigned int recordFrequency = 0;
@@ -466,23 +483,24 @@ int main(int argc, char *argv[]) {
 		robogenMessage::Robot robotMessage;
 		robotMessages.push_back(robotMessage);
 	}
-	std::string robotFileString(argv[1]);
 	std::vector<std::reference_wrapper<robogenMessage::Robot>> robots; //multiple robots
-
-
-	std::vector<std::string> fileNames;
-	fileNames.push_back("../examples/walkingStarfish.json");
-	fileNames.push_back("../examples/new/rob_single.json");
-	fileNames.push_back("../examples/cart.txt");
-
-
 
 	for (int i = 0;i<numberOfRobots;++i) //assign the multiple robots to a vector
 	{
-		if(!RobotRepresentation::createRobotMessageFromFile(robotMessages[i],
+		if (homogonouse)
+		{
+			if(!RobotRepresentation::createRobotMessageFromFile(robotMessages[i],
+				fileNames[0])) {
+			exitRobogen(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			if(!RobotRepresentation::createRobotMessageFromFile(robotMessages[i],
 				fileNames[i])) {
 			exitRobogen(EXIT_FAILURE);
-		}
+			}
+		}	
 		robots.push_back(robotMessages[i]);
 	}
 	// ---------------------------------------
@@ -504,7 +522,7 @@ int main(int argc, char *argv[]) {
 
 	if (writeLog) {
 		log.reset(
-				new FileViewerLog(std::string(argv[1]), std::string(argv[2]),
+				new FileViewerLog(std::string(fileNames[0]), std::string(argv[2]),
 						configuration->getObstacleFile(),
 						configuration->getStartPosFile(),
 						configuration->getLightSourceFile(),

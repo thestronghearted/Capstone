@@ -12,4 +12,4 @@ capAcceleration=false
 # uncomment the following to prevent 'jittery behaviors'
 #maxDirectionShiftsPerSecond=16
 startPositionConfigFile=posStartFile.txt
-numberRobots=2
+numberRobots=3

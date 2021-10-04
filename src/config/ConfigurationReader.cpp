@@ -281,8 +281,8 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 	 */
 	if (!vm.count("numberRobots"))
 	{
-		std::cout << "Number of robots not defined, using default of one robot" << std::endl;
-		numberOfRobots = 2;
+		std::cout << "Number of robots not defined, using argument input" << std::endl;
+		//numberOfRobots = 3;
 	}
 	else
 	{
@@ -540,7 +540,7 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 					motorNoiseLevel, capAcceleration, maxLinearAcceleration,
 					maxAngularAcceleration, maxDirectionShiftsPerSecond,
 					gravity, disallowObstacleCollisions,
-					obstacleOverlapPolicy));
+					obstacleOverlapPolicy, numberOfRobots));
 
 }
 
@@ -822,7 +822,7 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseRobogenMessage(
 							  simulatorConf.gravityy(),
 							  simulatorConf.gravityz()),
 					simulatorConf.disallowobstaclecollisions(),
-					simulatorConf.obstacleoverlappolicy()
+					simulatorConf.obstacleoverlappolicy(),1				
 					));
 
 }
