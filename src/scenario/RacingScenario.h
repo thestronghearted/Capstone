@@ -77,7 +77,6 @@ private:
 	//////
 	std::vector<std::vector<osg::Vec2>> startPositions_;
 	std::vector<double> fitnesses;
-	std::vector<std::vector<double>> distances;
 	int numberOfRobots = 1;
 };
 

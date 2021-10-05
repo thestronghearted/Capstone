@@ -105,9 +105,9 @@ std::vector<double> RacingScenario::getFitnessLevel()
 	for (unsigned int x = 0;x<numberOfRobots;x++)
 	{
 		double fitness = 1000000;
-		for (unsigned int i = 0; i < distances[x].size(); ++i) {
-			if (distances[x][i] < fitness)
-				fitness = distances[x][i];
+		for (unsigned int i = 0; i < 1; ++i) {
+			if (distances_[x] < fitness)
+				fitness = distances_[x];
 		}
 		fitnesses.push_back(fitness);
 	}
@@ -145,9 +145,7 @@ bool RacingScenario::endSimulations() {
 		curTrial_++;
 		// Set next starting position
 		this->setStartingPosition(curTrial_);
-	}
-	distances.push_back(distances_);
-	distances_.clear();
+	}	
 	return true;
 
 }

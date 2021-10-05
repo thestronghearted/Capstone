@@ -296,7 +296,7 @@ bool Scenario::inita(dWorldID odeWorld, dSpaceID odeSpace,
 	/**
 	 * Reading Starting Positions from the textfiles and not hardcoded as done above
 	 */
-	for (int i = 0; i < robogenConfig_->getNumberOfRobots(); i++)
+	for (int i = 0; i < robots.size(); i++)
 	{
 		osg::Vec2 inputPos = robogenConfig_->getStartingPos()->getStartPosition(i)->getPosition();
 		arrStartingPosition.push_back(inputPos);

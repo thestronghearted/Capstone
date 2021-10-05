@@ -21,11 +21,11 @@ DONE:
     thread robot visualization
     add obstacle
     make sure json splitting works
+    fitness testing
 
 
 
 TODO:
     a.make it look pretty, with comments
     c.create testing classes
-    d.fitness testing
 

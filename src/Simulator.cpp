@@ -522,7 +522,6 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		// ---------------------------------------
 		// Generate Robot
 		// ---------------------------------------
-		
 		std::vector<boost::shared_ptr<Robot>> robots;
 		for (int i = 0; i < robotMessage.size();i++)
 		{
@@ -574,6 +573,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 				<< ", trial: " << scenario->getCurTrial()
 				<< std::endl;
 		}
+
 		// Register sensors
 		std::vector<std::vector<boost::shared_ptr<Sensor> >> sensors;
 		for (int i = 0; i < robots.size();i++)
@@ -582,7 +582,6 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 				robots[i]->getSensors();
 			sensors.push_back(sensor);
 		}
-		
 		std::vector<std::vector<boost::shared_ptr<TouchSensor>>> touchSensors;
 		for (int j = 0;j < robots.size();j++)
 		{
@@ -597,7 +596,6 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 			}
 			touchSensors.push_back(touchSensor);
 		}
-		
 		// Register robot motors
 		std::vector<std::vector<boost::shared_ptr<Motor> >> motors;
 		for(int i = 0; i < robots.size(); i++)
@@ -617,7 +615,6 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		// Register brain and body parts 
 		std::vector<boost::shared_ptr<NeuralNetwork> > neuralNetworks;
 		std::vector<std::vector<boost::shared_ptr<Model> >> bodyParts;
-		
 		for(int i =0; i < robots.size(); i++)
 		{
 			boost::shared_ptr<NeuralNetwork> neuralNetwork =
@@ -635,7 +632,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 					<< std::endl;
 			return SIMULATION_FAILURE;
 		}
-
+		
 		if((configuration->getObstacleOverlapPolicy() ==
 				RobogenConfig::CONSTRAINT_VIOLATION) &&
 				scenario->wereObstaclesRemoved()) {
@@ -651,7 +648,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		boost::shared_ptr<Environment> env =
 				scenario->getEnvironment();
 
-		if (!scenario->setupSimulation()) {
+		if (!scenario->setupSimulations(robots.size())) {
 			std::cout << "Cannot setup scenario. Quit."
 					<< std::endl;
 			return SIMULATION_FAILURE;
@@ -679,7 +676,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		dReal previousAngVel[3];
 
 		
-
+		
 		// ---------------------------------------
 		// Main Loop
 		// ---------------------------------------
@@ -860,7 +857,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 			
 		// THREAD LAMBDA END ---------------------------------------------------------
 		//
-
+		
 		while ((t < configuration->getSimulationTime())
 			   && (!(visualize && viewer->done()))) {
 				   
@@ -910,7 +907,7 @@ unsigned int runSimulations1(boost::shared_ptr<Scenario> scenario,
 		// End of Main Loop
 		// ++++++++++++++++++++++++++++++++++++++
 
-		if (!scenario->endSimulation()) {
+		if (!scenario->endSimulations()) {
 			std::cout << "Cannot complete scenario. Quit."
 					<< std::endl;
 			return SIMULATION_FAILURE;

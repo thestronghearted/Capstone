@@ -63,6 +63,10 @@ public:
 	virtual bool remainingTrials();
 	virtual bool init(dWorldID odeWorld, dSpaceID odeSpace, boost::shared_ptr<Robot> robot);
 	virtual int getCurTrial() const;
+	///////////////
+	virtual std::vector<double> getFitnessLevel();
+	virtual bool setupSimulations(int numberofRobots);
+	virtual bool endSimulations();
 
 private:
 

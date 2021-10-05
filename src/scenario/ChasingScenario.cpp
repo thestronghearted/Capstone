@@ -111,4 +111,22 @@ int ChasingScenario::getCurTrial() const {
 	return curTrial_;
 }
 
+//////////////////////////////////////////
+std::vector<double> ChasingScenario::getFitnessLevel()
+{
+	std::vector<double> fitness = getFitnessLevel();
+	return fitness;
+}
+
+bool ChasingScenario::setupSimulations(int numberofRobots) {
+	return setupSimulation();
+
+}
+
+bool ChasingScenario::endSimulations() {
+	return endSimulation();
+
+}
+
+
 }
