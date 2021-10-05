@@ -35,6 +35,8 @@
 #include <boost/regex.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <boost/algorithm/string.hpp>
+#include <math.h>
+#include <cmath>
 
 #include "config/ConfigurationReader.h"
 #include "config/ObstaclesConfig.h"
@@ -303,17 +305,53 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 		////////////////////////////////////////////////edit done below
 		if (numberOfRobots != 1)
 		{
-			for (int robotNumber = 0;robotNumber < numberOfRobots; robotNumber++)
+			//get dimensions of terrain x,y = terrainWidth
+			//divide terrain into number of robots
+			float Width = terrain->getWidth();
+			float Length = terrain->getLength();
+			int gridWidth = (int) ceil(sqrt(numberOfRobots)); //creates #rows
+			int gridLength = (int) ceil(numberOfRobots/(double)gridWidth); // creates #columns
+			int count = 0;
+			std::cout << gridWidth << std::endl;
+			std::cout << gridLength << std::endl;
+			double gridSizeWidth = Width/(double)gridWidth; // create singular grid block width
+			double gridSizeLength = Length/(double)gridLength; // create singular grid block length
+			// creates #i of rows
+			for (int i = 0; i < gridWidth; i++)
 			{
-				boost::shared_ptr<StartPosition> startPosition(new StartPosition());
-				if (!startPosition->init(osg::Vec2(0+robotNumber,0+robotNumber), 0)) {
-				std::cerr << "Problem initializing start position!" << std::endl;
-				return boost::shared_ptr<RobogenConfig>();
+				// creates #j of columns
+				for (int j = 0;j < gridLength;j++)
+				{
+					if (count >= numberOfRobots)
+					{
+						std::cout << "Break" << std::endl;
+						break;
+					}
+					std::cout << "Width: " << (((gridSizeWidth*i)+(gridSizeWidth/2))-((0.5)*Width)) << std::endl;
+					std::cout << "Height: " << (((gridSizeLength*j)+(gridSizeLength/2))-((0.5)*Length)) << std::endl;
+					boost::shared_ptr<StartPosition> startPosition(new StartPosition());
+					if (!startPosition->init(osg::Vec2((((gridSizeWidth*i)+(gridSizeWidth/2))-(Width/2)),(((gridSizeLength*j)+(gridSizeLength/2))-(Length/2))), 0)) {
+						std::cerr << "Problem initializing start position!" << std::endl;
+						return boost::shared_ptr<RobogenConfig>();
+						}
+					startPositionVector.push_back(startPosition);
+					++count;
 				}
-
-				startPositionVector.push_back(startPosition);
 			}
 			startPositions.reset(new StartPositionConfig(startPositionVector));
+			
+
+			// for (int robotNumber = 0;robotNumber < numberOfRobots; robotNumber++)
+			// {
+			// 	boost::shared_ptr<StartPosition> startPosition(new StartPosition());
+			// 	if (!startPosition->init(osg::Vec2(0+robotNumber,0+robotNumber), 0)) {
+			// 	std::cerr << "Problem initializing start position!" << std::endl;
+			// 	return boost::shared_ptr<RobogenConfig>();
+			// 	}
+
+			// 	startPositionVector.push_back(startPosition);
+			// }
+			// startPositions.reset(new StartPositionConfig(startPositionVector));
 		}
 		else //original singular robot start position
 		{

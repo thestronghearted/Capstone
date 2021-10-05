@@ -23,9 +23,8 @@ DONE:
     make sure json splitting works
     fitness testing
 
-
-
 TODO:
     a.make it look pretty, with comments
+    b.preset starting possitions
     c.create testing classes
 
