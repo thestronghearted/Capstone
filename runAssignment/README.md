@@ -1,3 +1,5 @@
+(make sure you have python3 installed)
+
 When running the multiple robots, this folder has been created to streamline the process
 
 Before running these files, you first have to make within the build folder,

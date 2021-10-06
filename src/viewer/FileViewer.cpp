@@ -353,10 +353,6 @@ int main(int argc, char *argv[]) {
 				<< std::endl;
 			exitRobogen(EXIT_FAILURE);
 		}
-		else
-		{
-			std::cout << "\nTest Check: Configuration File read and parsed...\n" << std::endl ;
-		}
 	
 	}
 	else
@@ -367,10 +363,6 @@ int main(int argc, char *argv[]) {
 			std::cerr << "Problems parsing the configuration file. Quit."
 				<< std::endl;
 			exitRobogen(EXIT_FAILURE);
-		}
-		else
-		{
-			std::cout << "\nTest Check: Configuration File read and parsed...\n" << std::endl ;
 		}
 	
 	}
@@ -636,12 +628,10 @@ int main(int argc, char *argv[]) {
 		{
 		std::cout << "Fitness for Robot "<< (i+1) << ": " << fitness[i] << std::endl
 			<< std::endl;
-		
+		}
 	}
-
 	exitRobogen(EXIT_SUCCESS);
 	
-}
 }
 
 #endif
