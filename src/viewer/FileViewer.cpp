@@ -270,14 +270,14 @@ int main(int argc, char *argv[]) {
 	// read in numberofRobots, save filenames in a vector and determine amount of robots that will be simulated
 	bool homogeneous = false;
 	std::vector<std::string> fileNames;
-	int numberOfRobots = 1;
+	int numberOfRobots;
 	bool isMultiple = false;;
 	if (argc >= 4) 
 	{
 		int check = 2;
 		while(check < argc)
 		{
-			if (std::string(argv[check]) == "--multiple") // multiple robots
+			if (std::string(argv[check]) == "--multiple") // this is an option if argument file listing is used
 			{
 				isMultiple = true;
 				numberOfRobots = std::stoi(argv[++check]);
@@ -642,12 +642,6 @@ int main(int argc, char *argv[]) {
 	exitRobogen(EXIT_SUCCESS);
 	
 }
-
-
-
-
-
-
-
+}
 
 #endif

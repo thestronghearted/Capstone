@@ -1,2 +1,2 @@
 robotNum 4
-../examples/new/multiple.txt
+../examples/cart.txt
