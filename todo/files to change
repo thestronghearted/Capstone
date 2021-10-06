@@ -4,8 +4,6 @@ scenario.cpp: handle multiple robots
     -> Obstacles need to be coded in as well
     -> add start positions and azimuth
 
-simulator.cpp: edit to handle multiple robots -> Identify
-    ->renable the log(ging) of robot(s) REF:1
 
 Robot.cpp: edit the Init, by running it threaded
     ->

@@ -254,41 +254,44 @@ int main(int argc, char *argv[]) {
 #ifdef QT5_ENABLED
 	QCoreApplication a(argc, argv);
 #endif
-
+	//--help
 	if (argc > 1 && std::string(argv[1]) == "--help") {
 		printUsage(argv);
 		printHelp();
 		exitRobogen(EXIT_SUCCESS);
 	}
-
+	// too few args
 	if (argc < 3) {
 		printUsage(argv);
 		exitRobogen(EXIT_FAILURE);
 	}
-	bool homogonouse = false;
+	
+	// read in numberofRobots, save filenames in a vector and determine whether homo/hetro-geneous NEW
+	bool homogeneous = false;
 	std::vector<std::string> fileNames;
-	///new started
 	int numberOfRobots = 1;
-	if (argc >= 4) //checks for the number of robots inputed (this is for homogonouse)
+	bool isMultiple = false;;
+	if (argc >= 4) 
 	{
 		int check = 2;
 		while(check < argc)
 		{
 			if (std::string(argv[check]) == "--multiple")
 			{
+				isMultiple = true;
 				numberOfRobots = std::stoi(argv[++check]);
 				++check;
 				for (unsigned int i = 0;i<numberOfRobots;i++)
 				{
 					if (check+i == argc)
 					{
-						homogonouse = true;
+						homogeneous = true;
 						check += i;
 						break;
 					}
 					else if ((boost::starts_with(argv[check+i], "--")))
 					{
-						homogonouse = true;
+						homogeneous = true;
 						check += i;
 						break;
 					}
@@ -298,43 +301,90 @@ int main(int argc, char *argv[]) {
 			check++;
 		}
 	}
-	//new ended
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	if (numberOfRobots != 0) // if there are multiple robots
+	if (!isMultiple)
 	{
-		// Decode configuration file
-	boost::shared_ptr<RobogenConfig> configuration =
-			ConfigurationReader::parseConfigurationFile(std::string(argv[1]),numberOfRobots);  //configure with the number of robots
-	if (configuration == NULL) {
-		std::cerr << "Problems parsing the configuration file. Quit."
-				<< std::endl;
-		exitRobogen(EXIT_FAILURE);
+		std::ifstream robotList;
+		robotList.open(argv[1]);
+		std::string fileName;
+		std::string numOfRobots;
+		
+		if(!robotList)
+		{
+			std::cerr << "Unable to open robot containing file";
+			exitRobogen(EXIT_FAILURE);
+		}
+		robotList >> numOfRobots;
+		if (numOfRobots == "robotNum")
+		{
+			robotList >> numberOfRobots;
+			while (robotList >> fileName)
+			{
+				fileNames.push_back(fileName);
+			}
+			int counter = fileNames.size();
+			robotList.close();
+			if (fileNames.size() != numberOfRobots)
+			{
+				for (int i = 0; i < (numberOfRobots-counter);i++)
+			{
+				fileNames.push_back(fileNames[0]);
+			}
+			}			
+		}
+		else
+		{
+			fileNames.push_back(argv[1]);
+		}
+		
+
 	}
+	boost::shared_ptr<RobogenConfig> configuration;
+
+	if (isMultiple)
+	{
+		configuration =
+			ConfigurationReader::parseConfigurationFile(std::string(argv[1]),numberOfRobots);  
+		if (configuration == NULL) {
+			std::cerr << "Problems parsing the configuration file. Quit."
+				<< std::endl;
+			exitRobogen(EXIT_FAILURE);
+		}
+		else
+		{
+			std::cout << "\nTest Check: Configuration File read and parsed...\n" << std::endl ;
+		}
 	
-	// verify desired start position is specified in configuration
+	}
+	else
+	{
+		configuration =
+			ConfigurationReader::parseConfigurationFile(std::string(argv[2]),numberOfRobots); 
+		if (configuration == NULL) {
+			std::cerr << "Problems parsing the configuration file. Quit."
+				<< std::endl;
+			exitRobogen(EXIT_FAILURE);
+		}
+		else
+		{
+			std::cout << "Configuration File read and parsed..." << std::endl ;
+		}
+	
+	}
+	// Decode configuration file
+	
+	
+	// verify desired start position which is specified in configuration
 	unsigned int desiredStart = 0;
 	unsigned int recordFrequency = 0;
 	bool recording = false;
 	std::string recordDirectoryName = "";
-
 	bool writeLog = false;
 	char *outputDirectoryName;
-
 	bool writeWebGL = false;
 	bool overwrite = false;
-
 	int currentArg = 3;
 
-	/////////////////////////////////################# read in start position txt file
+	// read in start position txt file
 	if (argc >= 4 && !boost::starts_with(argv[3], "--")) {
 		std::stringstream ss(argv[3]);
 		currentArg++;
@@ -353,6 +403,8 @@ int main(int argc, char *argv[]) {
 			exitRobogen(EXIT_FAILURE);
 		}
 	}
+
+	// configure simulation settings
 	bool visualize = true;
 	bool startPaused = true;
 	double speed = 1.0;
@@ -444,30 +496,30 @@ int main(int argc, char *argv[]) {
 		}
 
 	}
+	
+	// verify correct combination of simulation settings
 	if (recording && !visualize) {
 		std::cerr << "Cannot record without visualization enabled!" <<
 				std::endl;
 		exitRobogen(EXIT_FAILURE);
 	}
-
 	if (startPaused && !visualize) {
 		std::cerr << "Cannot start paused without visualization enabled." <<
 				std::endl;
 		exitRobogen(EXIT_FAILURE);
 	}
-
 	if (writeWebGL && (!writeLog)) {
 		std::cerr << "Cannot write json file for WebGL visualizer without " <<
 				"specifying output directory." << std::endl;
 		exitRobogen(EXIT_FAILURE);
 	}
-
 	if (overwrite && (!writeLog)) {
 		std::cerr << "No output directory was specified, so there is " <<
 				"nothing to overwrite." << std::endl;
 		exitRobogen(EXIT_FAILURE);
 	}
 
+	// generate seed
 	boost::random::mt19937 rng;
 	if (seed != -1)
 		rng.seed(seed);
@@ -475,18 +527,20 @@ int main(int argc, char *argv[]) {
 	// ---------------------------------------
 	// Robot decoding HERE!
 	// --------------------------------------- 
-	//HERE! 
+	
+	// create a vector of robot messages for each robot (robotMessages)
 	std::vector<robogenMessage::Robot> robotMessages;
 	for (int i = 0;i<numberOfRobots;++i) //assign the multiple robots to a vector
 	{
 		robogenMessage::Robot robotMessage;
 		robotMessages.push_back(robotMessage);
 	}
-	std::vector<std::reference_wrapper<robogenMessage::Robot>> robots; //multiple robots
 
+	// create a vector of robots (robots)
+	std::vector<std::reference_wrapper<robogenMessage::Robot>> robots; //multiple robots
 	for (int i = 0;i<numberOfRobots;++i) //assign the multiple robots to a vector
 	{
-		if (homogonouse)
+		if (homogeneous)
 		{
 			if(!RobotRepresentation::createRobotMessageFromFile(robotMessages[i],
 				fileNames[0])) {
@@ -502,10 +556,13 @@ int main(int argc, char *argv[]) {
 		}	
 		robots.push_back(robotMessages[i]);
 	}
+
+
 	// ---------------------------------------
 	// Setup environment
 	// ---------------------------------------
 	
+	// create the Scenario (scenario)
 	boost::shared_ptr<Scenario> scenario = ScenarioFactory::createScenario(
 			configuration);
 	if (scenario == NULL) {
@@ -513,12 +570,11 @@ int main(int argc, char *argv[]) {
 	}
 	scenario->setStartingPosition(desiredStart); /////////////////issue in multiple
 
-	// --------getCurrent-------------------------------
-	// Set up log files
-	// ---------------------------------------
-	
-	boost::shared_ptr<FileViewerLog> log;
 
+	// ---------------------------------------
+	// Set up log files --disabled
+	// ---------------------------------------	
+	boost::shared_ptr<FileViewerLog> log;
 	if (writeLog) {
 		log.reset(
 				new FileViewerLog(std::string(fileNames[0]), std::string(argv[2]),
@@ -529,6 +585,7 @@ int main(int argc, char *argv[]) {
 						std::string(outputDirectoryName), overwrite,
 						writeWebGL));
 	}
+
 
 	// ---------------------------------------
 	// Run simulations
@@ -541,8 +598,9 @@ int main(int argc, char *argv[]) {
 				recordDirectoryName);
 	}
 	
-	unsigned int simulationResult = runSimulations1(scenario, configuration,
-			robots, viewer, rng, true, log);	//runs the simulation
+	//run the simulation and store the outcome
+	unsigned int simulationResult = runSimulations(scenario, configuration,
+			robots, viewer, rng, true, log);	
 	
 	if (viewer != NULL) {
 		delete viewer;
@@ -555,15 +613,14 @@ int main(int argc, char *argv[]) {
 	// ---------------------------------------
 	// Compute fitness
 	// ---------------------------------------
-	std::vector<double> fitness;
-	 if (simulationResult == CONSTRAINT_VIOLATED) {
+
+	std::vector<double> fitness; // save the fitness the robot(s)
+
+	//get fitness for each robot 
+	if (simulationResult == CONSTRAINT_VIOLATED) {
 		fitness.push_back(MIN_FITNESS);
-	 } else {
+	} else {
 	 	fitness = scenario->getFitnessLevel();
-	 }
-	for (int i = 0; i < fitness.size(); i++)
-	{
-		std::cout << fitness[i] << std::endl;
 	}
 
 	for(int i =0 ; i < numberOfRobots; i++){
@@ -578,264 +635,9 @@ int main(int argc, char *argv[]) {
 			<< std::endl;
 		}
 	}
-	
 
 	exitRobogen(EXIT_SUCCESS);
-	}
-    else
-{//ecapsulates until end of main
 	
-	
-	//end personal change
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// Decode configuration file
-	boost::shared_ptr<RobogenConfig> configuration =
-			ConfigurationReader::parseConfigurationFile(std::string(argv[2]),numberOfRobots); //added number of robots
-	if (configuration == NULL) {
-		std::cerr << "Problems parsing the configuration file. Quit."
-				<< std::endl;
-		exitRobogen(EXIT_FAILURE);
-	}
-
-	// verify desired start position is specified in configuration
-	unsigned int desiredStart = 0;
-	unsigned int recordFrequency = 0;
-	bool recording = false;
-	std::string recordDirectoryName = "";
-
-	bool writeLog = false;
-	char *outputDirectoryName;
-
-	bool writeWebGL = false;
-	bool overwrite = false;
-
-	int currentArg = 3;
-	if (argc >= 4 && !boost::starts_with(argv[3], "--")) {
-		std::stringstream ss(argv[3]);
-		currentArg++;
-		ss >> desiredStart;
-		--desiredStart; // -- accounts for parameter being 1..n
-		if (ss.fail()) {
-			std::cerr << "Specified desired starting position \"" << argv[3]
-					<< "\" is not an integer. Aborting..." << std::endl;
-			exitRobogen(EXIT_FAILURE);
-		}
-		if (desiredStart
-				>= configuration->getStartingPos()->getStartPosition().size()) {
-			std::cout << "Specified desired starting position " << argv[3]
-					<< " does not index a starting position. Aborting..."
-					<< std::endl;
-			exitRobogen(EXIT_FAILURE);
-		}
-	}
-	bool visualize = true;
-	bool startPaused = false;
-	double speed = 1.0;
-	bool debug = false;
-	int seed = -1;
-	for (; currentArg < argc; currentArg++) {
-		if (std::string("--help").compare(argv[currentArg]) == 0) {
-			printUsage(argv);
-			printHelp();
-			exitRobogen(EXIT_FAILURE);
-		} else if (std::string("--record").compare(argv[currentArg]) == 0) {
-			if (argc < (currentArg + 3)) {
-				std::cerr << "In order to record frames, must provide frame "
-						<< "frequency and target directory."
-						<< std::endl;
-				exitRobogen(EXIT_FAILURE);
-			}
-			recording = true;
-			currentArg++;
-			std::stringstream ss(argv[currentArg]);
-			ss >> recordFrequency;
-			if (ss.fail()) {
-				std::cerr << "Specified record frequency \"" << argv[currentArg]
-						<< "\" is not an integer. Aborting..." << std::endl;
-				exitRobogen(EXIT_FAILURE);
-			}
-			currentArg++;
-
-			recordDirectoryName = std::string(argv[currentArg]);
-			int curIndex = 0;
-			std::string tempPath = recordDirectoryName;
-			while (fixed_is_directory(tempPath)) {
-				std::stringstream newPath;
-				newPath << recordDirectoryName << "_" << ++curIndex;
-				tempPath = newPath.str();
-			}
-
-			recordDirectoryName = tempPath;
-
-			boost::filesystem::path recordDirectory(
-					recordDirectoryName.c_str());
-
-			if (recording
-					&& !boost::filesystem::is_directory(recordDirectory)) {
-				boost::filesystem::create_directories(recordDirectory);
-			}
-
-		} else if (std::string("--output").compare(argv[currentArg]) == 0) {
-			if (argc < (currentArg + 2)) {
-				std::cerr << "In order to write output files, must provide "
-										<< "directory."
-										<< std::endl;
-				exitRobogen(EXIT_FAILURE);
-
-			}
-			writeLog = true;
-			currentArg++;
-
-			outputDirectoryName = argv[currentArg];
-		} else if (std::string("--no-visualization").compare(argv[currentArg])
-				== 0) {
-			visualize = false;
-		} else if (std::string("--pause").compare(argv[currentArg]) == 0) {
-			startPaused = true;
-		} else if (std::string("--speed").compare(argv[currentArg]) == 0) {
-			if (argc < (currentArg + 2)) {
-				std::cerr << "Must specify a speed factor with option --speed."
-						<< std::endl;
-				exitRobogen(EXIT_FAILURE);
-			}
-			currentArg++;
-			std::stringstream ss(argv[currentArg]);
-			ss >> speed;
-		} else if (std::string("--debug").compare(argv[currentArg]) == 0) {
-			debug = true;
-		} else if (std::string("--seed").compare(argv[currentArg]) == 0) {
-			if (argc < (currentArg + 2)) {
-				std::cerr << "Must specify a seed value with option --seed."
-						<< std::endl;
-				exitRobogen(EXIT_FAILURE);
-			}
-			currentArg++;
-			std::stringstream ss(argv[currentArg]);
-			ss >> seed;
-		} else if (std::string("--webgl").compare(argv[currentArg]) == 0) {
-			writeWebGL = true;
-		} else if (std::string("--overwrite").compare(argv[currentArg]) == 0) {
-			overwrite = true;
-		}
-
-	}
-
-	if (recording && !visualize) {
-		std::cerr << "Cannot record without visualization enabled!" <<
-				std::endl;
-		exitRobogen(EXIT_FAILURE);
-	}
-
-	if (startPaused && !visualize) {
-		std::cerr << "Cannot start paused without visualization enabled." <<
-				std::endl;
-		exitRobogen(EXIT_FAILURE);
-	}
-
-	if (writeWebGL && (!writeLog)) {
-		std::cerr << "Cannot write json file for WebGL visualizer without " <<
-				"specifying output directory." << std::endl;
-		exitRobogen(EXIT_FAILURE);
-	}
-
-	if (overwrite && (!writeLog)) {
-		std::cerr << "No output directory was specified, so there is " <<
-				"nothing to overwrite." << std::endl;
-		exitRobogen(EXIT_FAILURE);
-	}
-
-	boost::random::mt19937 rng;
-	if (seed != -1)
-		rng.seed(seed);
-
-	// ---------------------------------------
-	// Robot decoding
-	// ---------------------------------------
-	robogenMessage::Robot robotMessage;
-	std::string robotFileString(argv[1]);
-
-	if(!RobotRepresentation::createRobotMessageFromFile(robotMessage,
-			robotFileString)) {
-		exitRobogen(EXIT_FAILURE);
-	}
-
-	// ---------------------------------------
-	// Setup environment
-	// ---------------------------------------
-
-	boost::shared_ptr<Scenario> scenario = ScenarioFactory::createScenario(
-			configuration);
-	if (scenario == NULL) {
-		exitRobogen(EXIT_FAILURE);
-	}
-	scenario->setStartingPosition(desiredStart);
-
-	// ---------------------------------------
-	// Set up log files
-	// ---------------------------------------
-
-	boost::shared_ptr<FileViewerLog> log;
-
-	if (writeLog) {
-		log.reset(
-				new FileViewerLog(std::string(argv[1]), std::string(argv[2]),
-						configuration->getObstacleFile(),
-						configuration->getStartPosFile(),
-						configuration->getLightSourceFile(),
-						configuration->getScenarioFile(),
-						std::string(outputDirectoryName), overwrite,
-						writeWebGL));
-	}
-
-	// ---------------------------------------
-	// Run simulations
-	// ---------------------------------------
-	IViewer *viewer = NULL;
-	if (visualize) {
-		viewer = new Viewer(startPaused, debug,
-				speed, recording, recordFrequency,
-				recordDirectoryName);
-	}
-
-	unsigned int simulationResult = runSimulations(scenario, configuration,
-			robotMessage, viewer, rng, true, log);
-
-	if (viewer != NULL) {
-		delete viewer;
-	}
-
-	if (simulationResult == SIMULATION_FAILURE) {
-		exitRobogen(EXIT_FAILURE);
-	}
-
-	// ---------------------------------------
-	// Compute fitness
-	// ---------------------------------------
-	double fitness;
-	if (simulationResult == CONSTRAINT_VIOLATED) {
-		fitness = MIN_FITNESS;
-	} else {
-		fitness = scenario->getFitness();
-	}
-	std::cout << "Fitness for the current solution: " << fitness << std::endl
-			<< std::endl;
-
-	exitRobogen(EXIT_SUCCESS);
-}
 }
 
 

@@ -51,7 +51,7 @@ bool ChasingScenario::setupSimulation() {
 
 }
 
-bool ChasingScenario::init(dWorldID odeWorld, dSpaceID odeSpace, boost::shared_ptr<Robot> robot) {
+bool ChasingScenario::init(dWorldID odeWorld, dSpaceID odeSpace, std::vector<boost::shared_ptr<Robot>> robot) {
 
 	Scenario::init(odeWorld, odeSpace, robot);
 

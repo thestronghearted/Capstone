@@ -312,8 +312,6 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 			int gridWidth = (int) ceil(sqrt(numberOfRobots)); //creates #rows
 			int gridLength = (int) ceil(numberOfRobots/(double)gridWidth); // creates #columns
 			int count = 0;
-			std::cout << gridWidth << std::endl;
-			std::cout << gridLength << std::endl;
 			double gridSizeWidth = Width/(double)gridWidth; // create singular grid block width
 			double gridSizeLength = Length/(double)gridLength; // create singular grid block length
 			// creates #i of rows
@@ -324,11 +322,8 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 				{
 					if (count >= numberOfRobots)
 					{
-						std::cout << "Break" << std::endl;
 						break;
 					}
-					std::cout << "Width: " << (((gridSizeWidth*i)+(gridSizeWidth/2))-((0.5)*Width)) << std::endl;
-					std::cout << "Height: " << (((gridSizeLength*j)+(gridSizeLength/2))-((0.5)*Length)) << std::endl;
 					boost::shared_ptr<StartPosition> startPosition(new StartPosition());
 					if (!startPosition->init(osg::Vec2((((gridSizeWidth*i)+(gridSizeWidth/2))-(Width/2)),(((gridSizeLength*j)+(gridSizeLength/2))-(Length/2))), 0)) {
 						std::cerr << "Problem initializing start position!" << std::endl;
@@ -551,7 +546,9 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 	}
 
 	unsigned int obstacleOverlapPolicy;
-
+	/**
+	 * Reads in the Obstabcle Overlap Policy from the configuration file
+	 */
 	if((!vm.count("obstacleOverlapPolicy")) ||
 			(vm["obstacleOverlapPolicy"].as<std::string>() ==
 					"removeObstacles")) {
@@ -729,8 +726,10 @@ boost::shared_ptr<LightSourcesConfig> ConfigurationReader::parseLightSourcesFile
 	return boost::shared_ptr<LightSourcesConfig>(
 			new LightSourcesConfig(coordinates, intensities));
 }
-//////////////////////////////#################################need to work on below
 
+/**
+ * The starting positions textfile is read in line by line and each position is stored to the the vector startPositions
+ */
 boost::shared_ptr<StartPositionConfig> ConfigurationReader::parseStartPositionFile(
 		const std::string& fileName) {
 
@@ -760,6 +759,8 @@ boost::shared_ptr<StartPositionConfig> ConfigurationReader::parseStartPositionFi
 			return boost::shared_ptr<StartPositionConfig>();
 		}
 	}
+	// Output stating all starting positions have been read in
+	std::cout << "Test Check: All starting positions have been read and recorded..." << std::endl;
 
 	return boost::shared_ptr<StartPositionConfig>(
 			new StartPositionConfig(startPositions));
@@ -803,7 +804,6 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseRobogenMessage(
 				new LightSourcesConfig(lightSourcesCoords,
 						lightSourcesIntensities));
 
-	//////////////////////////////#################################need to work on below
 	// Decode start positions
 	std::vector<boost::shared_ptr<StartPosition> > startPositions;
 	for (int i = 0; i < simulatorConf.startpositions_size(); ++i) {

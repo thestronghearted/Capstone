@@ -22,9 +22,9 @@ DONE:
     add obstacle
     make sure json splitting works
     fitness testing
+    preset starting possitions
 
 TODO:
     a.make it look pretty, with comments
-    b.preset starting possitions
     c.create testing classes
 

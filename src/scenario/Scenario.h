@@ -70,21 +70,6 @@ public:
 	 * @param odeSpace
 	 * @param robot
 	 */
-	virtual bool init(dWorldID odeWorld, dSpaceID odeSpace,
-			boost::shared_ptr<Robot> robot);
-
-	/**
-	 * Clears unused scenario (so that robot can be freed - joints need to be
-	 * destroyed before the destruction of the world). Undoes what init() does
-	 * and avoids memory leaks over multiple starting positions.
-	 */
-	void prune();
-
-	/**
-	 * @return the robot
-	 */
-	//boost::shared_ptr<Robot> getRobot();
-
 
 	std::vector<boost::shared_ptr<Robot> > getRobots();
 
@@ -151,7 +136,7 @@ public:
 		robogenConfig_ = robogenConfig;
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool inita(dWorldID odeWorld, dSpaceID odeSpace,
+	virtual bool init(dWorldID odeWorld, dSpaceID odeSpace,
 		std::vector<boost::shared_ptr<Robot>> robot);
 
 	void prunemul();
