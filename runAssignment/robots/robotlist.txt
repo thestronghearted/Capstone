@@ -1,2 +1,3 @@
 robotNum 4
 ../runAssignment/robots/cart.txt
+../runAssignment/robots/starfish.txt
