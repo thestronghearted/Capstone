@@ -66,7 +66,11 @@ void makeAbsolute(std::string &fileName,
 	}
 }
 
-
+/**
+ * This is a check, the simulator will go through the given configuration file and check
+ * which of these keywords are in it or not. If they are present, then their values are stored
+ * in the simulator's configuration file.
+ */
 boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(  
 		const std::string& fileName,int numberOfRobots) { //edited with including number of robots
 
@@ -167,7 +171,9 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 	}
 
 	boost::program_options::variables_map vm;
-
+	/**
+	 * Stores the different values from the configuration file, into the object called vm
+	 */
 	try {
 		boost::program_options::store(
 			boost::program_options::parse_config_file<char>(fileName.c_str(),
@@ -302,7 +308,7 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 				<< "having 0 azimuth" << std::endl;
 		std::vector<boost::shared_ptr<StartPosition> > startPositionVector;
 
-		////////////////////////////////////////////////edit done below
+		
 		if (numberOfRobots != 1)
 		{
 			//get dimensions of terrain x,y = terrainWidth
@@ -336,17 +342,6 @@ boost::shared_ptr<RobogenConfig> ConfigurationReader::parseConfigurationFile(
 			startPositions.reset(new StartPositionConfig(startPositionVector));
 			
 
-			// for (int robotNumber = 0;robotNumber < numberOfRobots; robotNumber++)
-			// {
-			// 	boost::shared_ptr<StartPosition> startPosition(new StartPosition());
-			// 	if (!startPosition->init(osg::Vec2(0+robotNumber,0+robotNumber), 0)) {
-			// 	std::cerr << "Problem initializing start position!" << std::endl;
-			// 	return boost::shared_ptr<RobogenConfig>();
-			// 	}
-
-			// 	startPositionVector.push_back(startPosition);
-			// }
-			// startPositions.reset(new StartPositionConfig(startPositionVector));
 		}
 		else //original singular robot start position
 		{
@@ -729,6 +724,11 @@ boost::shared_ptr<LightSourcesConfig> ConfigurationReader::parseLightSourcesFile
 
 /**
  * The starting positions textfile is read in line by line and each position is stored to the the vector startPositions
+ * Starting positions are formatted as: x y θ
+ * Where:
+ *		 x -> the x-position on the terrain
+ *		 y -> the y-position on the terrain
+ *		 θ -> is the azimuth value
  */
 boost::shared_ptr<StartPositionConfig> ConfigurationReader::parseStartPositionFile(
 		const std::string& fileName) {

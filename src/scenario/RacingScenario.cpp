@@ -98,7 +98,12 @@ int RacingScenario::getCurTrial() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
+/**
+ * Called when determining the fitness scores of each robot in a swarm.
+ * Calculates the fitness score of each robot in a swarm for the racing scenario.
+ * The score is calculated by comparing the distance moved by a robot during the amount of time 
+ * the simulation was active
+ */
 std::vector<double> RacingScenario::getFitnessLevel()
 {
 	std::vector<double> fitnesses;
@@ -114,6 +119,10 @@ std::vector<double> RacingScenario::getFitnessLevel()
 	return fitnesses;
 }
 
+/**
+ * Called when the simulation is about to start.
+ * Creates the setup for the simulation of each robot in a swarm, which is stored in the robots robotMessage.
+ */
 bool RacingScenario::setupSimulations(int numberofRobots) {
 	numberOfRobots = numberofRobots;
 	// Compute robot start position,
@@ -127,6 +136,10 @@ bool RacingScenario::setupSimulations(int numberofRobots) {
 
 }
 
+/**
+ * Called when the simulation is completed or cancelled.
+ * Ends the simulation of the swarm.
+ */
 bool RacingScenario::endSimulations() {
     
 	for (unsigned int x = 0; x<numberOfRobots; x++)

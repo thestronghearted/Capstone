@@ -260,13 +260,14 @@ int main(int argc, char *argv[]) {
 		printHelp();
 		exitRobogen(EXIT_SUCCESS);
 	}
+
 	// too few args
 	if (argc < 3) {
 		printUsage(argv);
 		exitRobogen(EXIT_FAILURE);
 	}
 	
-	// read in numberofRobots, save filenames in a vector and determine whether homo/hetro-geneous NEW
+	// read in numberofRobots, save filenames in a vector and determine amount of robots that will be simulated
 	bool homogeneous = false;
 	std::vector<std::string> fileNames;
 	int numberOfRobots = 1;
@@ -276,7 +277,7 @@ int main(int argc, char *argv[]) {
 		int check = 2;
 		while(check < argc)
 		{
-			if (std::string(argv[check]) == "--multiple")
+			if (std::string(argv[check]) == "--multiple") // multiple robots
 			{
 				isMultiple = true;
 				numberOfRobots = std::stoi(argv[++check]);
@@ -301,6 +302,8 @@ int main(int argc, char *argv[]) {
 			check++;
 		}
 	}
+
+	// singular robot
 	if (!isMultiple)
 	{
 		std::ifstream robotList;
@@ -340,6 +343,7 @@ int main(int argc, char *argv[]) {
 	}
 	boost::shared_ptr<RobogenConfig> configuration;
 
+	// setup configuration 
 	if (isMultiple)
 	{
 		configuration =
@@ -366,11 +370,10 @@ int main(int argc, char *argv[]) {
 		}
 		else
 		{
-			std::cout << "Configuration File read and parsed..." << std::endl ;
+			std::cout << "\nTest Check: Configuration File read and parsed...\n" << std::endl ;
 		}
 	
 	}
-	// Decode configuration file
 	
 	
 	// verify desired start position which is specified in configuration
@@ -598,7 +601,7 @@ int main(int argc, char *argv[]) {
 				recordDirectoryName);
 	}
 	
-	//run the simulation and store the outcome
+	//run the simulation and store the outcome as an integer
 	unsigned int simulationResult = runSimulations(scenario, configuration,
 			robots, viewer, rng, true, log);	
 	
@@ -626,14 +629,14 @@ int main(int argc, char *argv[]) {
 	for(int i =0 ; i < numberOfRobots; i++){
 		if (fitness.size()<numberOfRobots)
 		{
-			std::cout << "Fitness for Robot duplicate"<< (i+1) << ": " << fitness[0] << std::endl
-			<< std::endl; 
+			std::cout << "Fitness for Robot "<< (i+1) << ": " << fitness[0] << std::endl
+			<< std::endl;
 		}
 		else
 		{
 		std::cout << "Fitness for Robot "<< (i+1) << ": " << fitness[i] << std::endl
 			<< std::endl;
-		}
+		
 	}
 
 	exitRobogen(EXIT_SUCCESS);

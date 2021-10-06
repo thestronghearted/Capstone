@@ -1,6 +1,7 @@
-import json
+import os
 import sys
-
+import json
+import time
 
 def get_root(body) :
     for part in body["part"] :
@@ -11,10 +12,6 @@ def get_part(id_, body) :
     for part in body["part"] :
         if part["id"] == id_ :
             return part
-
-#def fix_param(val) :
-#    return round(val * 10000)/10000.0
-
 
 def write_part(output, part, body, indentation_level=0) :
     for _ in range(indentation_level) :
@@ -97,21 +94,34 @@ def write_brain(output, brain):
                 else :
                     output.write(str(neuron["bias"]))
                 output.write("\n")
-        
+
+
 if __name__ == "__main__":
+    if ".txt" in sys.argv[1]:
+        os.system("../build/robogen-file-viewer "+sys.argv[1]+" "+sys.argv[2])
+    elif ".json" in sys.argv[1]:
+        with open(sys.argv[1]) as json_file:
+            data = json.load(json_file)
+            if 'swarm' in data:
+                robotlist = open('./temp/robotlist.txt', "w")
+                robots = data['swarm']
+                robotlist.write("robotNum {}".format(len(robots)))
+                for i in range(0,len(robots)):
+                    output = open('./temp/data{}.txt'.format(i), "w")
+                    robotlist.write("\n"+'./temp/data{}.txt'.format(i))
+                    write_body(output, robots[i]["body"])   
+                    output.write("\n") 
+                    if "brain" in robots[i] :
+                        write_brain(output, robots[i]["brain"])
+                    output.close()
+                robotlist.close()
+                os.system("../build/robogen-file-viewer "+"../runAssignment/temp/robotlist.txt"+" "+sys.argv[2])
 
-    if len(sys.argv) < 3 :
-        print ("Usage: python json_converter.py input.json output.txt")
-        exit()
-    
-    robot = json.load(open(sys.argv[1],"r"))
-    
-    output = open(sys.argv[2], "w")
-    write_body(output, robot["body"])    
-    output.write("\n") 
-    if "brain" in robot :
-        write_brain(output, robot["brain"])
-    
-    
+                for i in range(0,len(robots)):
+                    os.remove('./temp/data{}.txt'.format(i))
+                os.remove('./temp/robotlist.txt')
+            else:
+                os.system("../build/robogen-file-viewer "+sys.argv[1]+" "+sys.argv[2])
 
-
+    else:
+        print("Please use a .txt or a .json file")

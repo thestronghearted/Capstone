@@ -260,7 +260,10 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 
 		// Threading method BEGIN ------------------------------------------------------
 
-		// lambda(updateRobot(...)) used by threading within the upcoming while loop. UpdateRobot(...) is  Responsible for updating the state of every robot after every frame.
+		/*
+		 lambda(updateRobot(...)) used by threading within the upcoming while loop.
+		 UpdateRobot(...) is  Responsible for updating the state of every robot after every frame.
+		*/
 		auto updateRobot = [&](boost::shared_ptr<robogen::Robot> robot, // robots[k]
                  boost::shared_ptr<robogen::RobogenConfig> configurations, // configuration
                 std::vector<boost::shared_ptr<robogen::Model>> bodyParts,// bodyparts[k]]
@@ -306,7 +309,7 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 			float networkInput[MAX_INPUT_NEURONS];
 			float networkOutputs[MAX_OUTPUT_NEURONS];
 			
-			// Update Sensors
+			// Update Sensors for each body part on the robot
 			for (unsigned int i = 0; i < bodyParts.size();++i) 
 			{
 				if (boost::dynamic_pointer_cast<
@@ -369,8 +372,6 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 						boost::dynamic_pointer_cast<ServoMotor>(motors[i]
 						)->setDesiredPosition(networkOutputs[i], step *
 								configuration->getActuationPeriod());
-						//motor->setPosition(networkOutputs[i], step *
-						//		configuration->getActuationPeriod());
 					}
 
 				}
@@ -383,10 +384,8 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 			bool motorBurntOut = false;
 			for (unsigned int i = 0; i < motors.size(); ++i) 
 			{
-				motors[i]->step( step ) ; //* configuration->getActuationPeriod() );
+				motors[i]->step( step ) ;
 
-				// TODO find a cleaner way to do this
-				// for now will reuse accel cap infrastructure
 				if (motors[i]->isBurntOut()) {
 					std::cout << "Motor burnt out, will terminate now "
 							<< std::endl;
@@ -400,24 +399,6 @@ unsigned int runSimulations(boost::shared_ptr<Scenario> scenario,
 			{
 				//::break;
 			}
-
-			// if (!scenario->afterSimulationStep()) 
-			// {
-			// 	std::cout
-			// 			<< "Cannot execute scenario after simulation step. Quit."
-			// 			<< std::endl;
-			// 	return SIMULATION_FAILURE;
-			// }
-
-			// if(log) {
-			// 	log->logPosition(
-			// 		scenario->getRobots(
-			// 				)->getCoreComponent()->getRootPosition());
-			// }
-
-			// if(webGLlogger) {
-			// 	webGLlogger->log(t);
-			// }
 				
 		};
 		

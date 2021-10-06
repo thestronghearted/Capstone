@@ -48,6 +48,7 @@ Scenario::~Scenario() {
 
 /**
  * @author: Kevaalin
+ * @return a robot's current position in the terrain
  * From here is the code to retrieve the starting positions
  */
 boost::shared_ptr<StartPosition> Scenario::getCurrentStartPosition() {
@@ -56,7 +57,9 @@ boost::shared_ptr<StartPosition> Scenario::getCurrentStartPosition() {
 }
 
 
-
+/**
+ * @return the configuration file
+ */
 boost::shared_ptr<RobogenConfig> Scenario::getRobogenConfig() {
 	return robogenConfig_;
 }
@@ -100,9 +103,18 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 		maxZ.push_back(0);
 	}
 	
+	/**
+	 * Creates two new vectors in the Scenario class, one to store the starting positions of each robot
+	 * and one to store each robots azimuth value.
+	 */
 	std::vector<osg::Vec2> arrStartingPosition;
 	std::vector<float> arrAzimth;
 
+
+	/**
+	 * Iterates through the robots and takes the starting positions and azimuths of the robots 
+	 * and stores it in the relevant vectors.
+	 */
 	for (int i = 0; i < robots.size(); i++)
 	{
 		osg::Vec2 inputPos = robogenConfig_->getStartingPos()->getStartPosition(i)->getPosition();
@@ -111,6 +123,9 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 		arrAzimth.push_back(inputAzi);
 	}
 
+	/**
+	 * Iterates through the robots and rotates them according to the azimuth value for the simulator.
+	 */
 	for(int i = 0; i < robots.size(); i++){
 	osg::Quat roboRot;
 	roboRot.makeRotate(osg::inDegrees(arrAzimth[i]), osg::Vec3(0,0,1));
@@ -125,6 +140,11 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 		robots[i]->getBB(minX[i], maxX[i], minY[i], maxY[i], minZ[i], maxZ[i]);
 	}
 	
+	/**
+	 * Produces an output statement, declaring the area in the terrain that each robot will occupy.
+	 * Note: The robots actual output can be any shape, depending on the robot file, however, the
+	 *       output will always depict the space taken as a rectangular area.
+	 */
 	for (int i = 0; i < robots.size();i++)
 	{
 	std::cout
@@ -149,7 +169,12 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 	obstaclesRemoved_ = false;
 
 	double overlapMaxZ=minZ[0];
-
+	/**
+	 * Iterates through the obstacle textfile, if one is provided, and adds it to the scenario.
+	 * Note: In cases where an obstacle may overlap with a robot, the simulator will change the
+	 *       scenario file, based on the Obstacle Overlap Policy. By default it will remove the
+	 *		 obstacle from the simulation.
+	 */
 	for (unsigned int i = 0; i < c.size(); ++i) {
 		boost::shared_ptr<BoxObstacle> obstacle(
 									new BoxObstacle(odeWorld, odeSpace, c[i],
@@ -157,15 +182,6 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 											rotationAngles[i]));
 		double oMinX, oMaxX, oMinY, oMaxY, oMinZ, oMaxZ;
 		obstacle->getAABB(oMinX, oMaxX, oMinY, oMaxY, oMinZ, oMaxZ);
-
-		/*
-		float oMinX = c[i].x() - s[i].x() / 2;
-		float oMaxX = c[i].x() + s[i].x() / 2;
-		float oMinY = c[i].y() - s[i].y() / 2;
-		float oMaxY = c[i].y() + s[i].y() / 2;
-		float oMinZ = c[i].z() - s[i].z() / 2;
-		float oMaxZ = c[i].z() + s[i].z() / 2;
-		 */
 
 		// Do not insert the obstacle if it is in the robot range
 		bool inRangeX = false;
@@ -187,8 +203,7 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 				inRangeZ = true;
 			}
 		}
-		// Print statement for all obstacles being generated
-		std::cout << "All obstacles have been generated..." << std::endl;
+		
 
 		// Do not insert obstacles in the robot range
 		// If statements to check that no obstacles overlapping with robots
@@ -207,9 +222,11 @@ bool Scenario::init(dWorldID odeWorld, dSpaceID odeSpace,
 				obstaclesRemoved_ = true;
 			}
 		}
-		std::cout << "Any overlapping obstacles have been removed from the simulation..." << std::endl;
 
 	}
+	// Print statement for all obstacles being generated
+	std::cout << "All obstacles have been generated..." << std::endl;
+	std::cout << "Any overlapping obstacles have been removed from the simulation..." << std::endl;
 
 	if (robogenConfig_->getObstacleOverlapPolicy() ==
 			RobogenConfig::ELEVATE_ROBOT) {

@@ -267,7 +267,7 @@ public:
 	}
 
 	/**
-	 * return the number of robots stored in the configuration file
+	 * @return the number of robots stored in the configuration file
 	 */
 	unsigned int getNumberOfRobots()
 	{

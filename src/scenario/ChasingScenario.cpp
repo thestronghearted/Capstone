@@ -119,7 +119,12 @@ std::vector<double> ChasingScenario::getFitnessLevel()
 }
 
 bool ChasingScenario::setupSimulations(int numberofRobots) {
-	return setupSimulation();
+	numberOfRobots = numberofRobots;
+	for (int i = 0;i<numberOfRobots;i++)
+	{
+		this->distances_.push_back(0);
+	}
+	return true;
 
 }
 

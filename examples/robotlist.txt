@@ -1,0 +1,2 @@
+robotNum 4
+../examples/new/multiple.txt
