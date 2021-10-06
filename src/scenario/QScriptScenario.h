@@ -66,6 +66,9 @@ public:
 	virtual bool endSimulation();
 	virtual double getFitness();
 	virtual bool remainingTrials();
+	virtual std::vector<double> getFitnessLevel();
+	virtual bool setupSimulations(int numberofRobots);
+	virtual bool endSimulations();
 
 
 public slots:

@@ -114,7 +114,8 @@ int ChasingScenario::getCurTrial() const {
 //////////////////////////////////////////
 std::vector<double> ChasingScenario::getFitnessLevel()
 {
-	std::vector<double> fitness = getFitnessLevel();
+	std::vector<double> fitness; 
+	fitness.push_back(getFitness());
 	return fitness;
 }
 

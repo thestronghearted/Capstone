@@ -258,6 +258,21 @@ float QScriptScenario::vectorDistance(QScriptValue vector1,
 	return NAN;
 }
 
+bool QScriptScenario::setupSimulations(int numberofRobots) {
+	return setupSimulation();
+
+}
+
+bool QScriptScenario::endSimulations() {
+	return endSimulation();
+}
+
+std::vector<double> QScriptScenario::getFitnessLevel()
+{
+	std::vector<double> fitness; 
+	fitness.push_back(getFitness());
+	return fitness;
+}
 
 }
 

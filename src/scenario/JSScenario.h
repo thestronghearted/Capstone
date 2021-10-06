@@ -73,6 +73,9 @@ public:
 	virtual double getFitness() = 0;
 	virtual bool remainingTrials();
 	virtual int getCurTrial() const;
+	virtual std::vector<double> getFitnessLevel();
+	virtual bool setupSimulations(int numberofRobots);
+	virtual bool endSimulations();
 
 	std::string getId() {
 		return id_;

@@ -171,7 +171,25 @@ float JSScenario::vectorDistance(emscripten::val vector1,
 	return NAN;
 }
 
+bool JSScenario::setupSimulations(int numberofRobots) {
+	return setupSimulation();
 
 }
+
+bool JSScenario::endSimulations() {
+	return endSimulation();
+}
+
+std::vector<double> JSScenario::getFitnessLevel()
+{
+	std::vector<double> fitness; 
+	fitness.push_back(getFitness());
+	return fitness;
+}
+
+}
+
+
+
 
 #endif
