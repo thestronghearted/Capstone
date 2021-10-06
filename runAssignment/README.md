@@ -3,7 +3,7 @@ When running the multiple robots, this folder has been created to streamline the
 Before running these files, you first have to make within the build folder,
 inside there run the following (if you have not done so already):
 
-robogen-0.3.1/build$ cmake -DCMAKE_BUILD_TYPE=Release -G"Unix Makefiles" ..src/
+robogen-0.3.1/build$ cmake -DCMAKE_BUILD_TYPE=Release -G"Unix Makefiles" ../src
 
 robogen-0.3.1/build$ make -j3
 

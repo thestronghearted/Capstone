@@ -270,7 +270,7 @@ int main(int argc, char *argv[]) {
 	// read in numberofRobots, save filenames in a vector and determine amount of robots that will be simulated
 	bool homogeneous = false;
 	std::vector<std::string> fileNames;
-	int numberOfRobots;
+	int numberOfRobots = 1;
 	bool isMultiple = false;;
 	if (argc >= 4) 
 	{
